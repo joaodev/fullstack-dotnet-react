@@ -42,6 +42,7 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
+      - ./backend/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=appdb;Username=postgres;Password=postgres

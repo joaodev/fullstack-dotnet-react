@@ -18,6 +18,9 @@ out/
 # Logs
 *.log
 
+# ASP.NET Data Protection keys
+DataProtection-Keys/
+
 # NuGet packages
 *.nupkg
 packages/
