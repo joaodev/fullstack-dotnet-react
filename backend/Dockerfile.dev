@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dev
 WORKDIR /app
 COPY . .
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 EXPOSE 5000
-CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5000"]
+RUN chmod +x /app/entrypoint.sh
+CMD ["/app/entrypoint.sh"]

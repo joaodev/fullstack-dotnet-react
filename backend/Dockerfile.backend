@@ -1,16 +1,18 @@
-# Dockerfile para aplicação .NET
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 5000
 
+# Dockerfile para aplicação .NET
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["backend.csproj", "."]
-RUN dotnet restore "backend.csproj"
 COPY . .
-RUN dotnet publish "backend.csproj" -c Release -o /app/publish
+RUN dotnet restore Backend.csproj
+RUN dotnet publish Backend.csproj -c Release -o /src/publish
+RUN ls -lR /src/publish
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "backend.dll"]
+COPY --from=build /src/publish/ /app/
+RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+ENV ASPNETCORE_URLS=http://*:5000
+EXPOSE 5000
+ENTRYPOINT ["/app/entrypoint.sh"]

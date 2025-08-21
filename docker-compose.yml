@@ -44,13 +44,17 @@ services:
       - ./backend:/app
       - ./backend/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=appdb;Username=postgres;Password=postgres
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=user
-      - RabbitMQ__Password=password
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 5000
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=appdb;Username=postgres;Password=postgres
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__UserName: user
+      RabbitMQ__Password: password
+      DB_HOST: postgres
+      DB_PORT: 5432
     depends_on:
       - postgres
       - rabbitmq
+    command: /bin/sh -c "chmod +x /app/entrypoint.sh && /app/entrypoint.sh"
 volumes:
   pgdata:
