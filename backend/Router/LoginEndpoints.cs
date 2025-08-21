@@ -7,15 +7,28 @@ using ProductsDotnetApi.Data;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using ProductsDotnetApi.Repositories;
+
+public class LoginLog {}
 public static class LoginEndpoints
 {
     public static void MapLoginEndpoints(this WebApplication app)
     {
         app.MapPost("/login", async ([FromServices] UserRepository userRepository, LoginRequest login) =>
         {
+            var logger = app.Services.GetRequiredService<ILogger<LoginLog>>();
             var user = await userRepository.GetByEmailAsync(login.Email);
-            if (user == null || !ProductsDotnetApi.Repositories.PasswordHelper.VerifyPassword(login.Password, user.PasswordHash))
+            if (user == null) {
+                logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Usuário não encontrado", DateTime.UtcNow, login.Email);
                 return Results.Unauthorized();
+            }
+            if (!user.Status) {
+                logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Usuário inativo", DateTime.UtcNow, login.Email);
+                return Results.Unauthorized();
+            }
+            if (!ProductsDotnetApi.Repositories.PasswordHelper.VerifyPassword(login.Password, user.PasswordHash)) {
+                logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Senha inválida", DateTime.UtcNow, login.Email);
+                return Results.Unauthorized();
+            }
 
             var claims = new[]
             {
@@ -35,6 +48,7 @@ public static class LoginEndpoints
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            logger.LogInformation("[SUCESSO] [{Time}] [POST /login] [Email: {Email}] - Login realizado com sucesso: {Id}", DateTime.UtcNow, login.Email, user.Id);
             return Results.Ok(new { token = tokenString });
         });
     }

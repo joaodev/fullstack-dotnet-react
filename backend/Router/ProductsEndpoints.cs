@@ -7,114 +7,192 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using ProductsDotnetApi.Repositories;
 
+public class ProductLog {}
+
+public class ProductResponse {
+    public Guid Id { get; set; }
+    public string? Code { get; set; }
+    public string? Description { get; set; }
+    public int DepartmentId { get; set; }
+    public decimal Price { get; set; }
+}
+
 namespace ProductsDotnetApi.Router
+
 {
-    public static class ProductsEndpoints
-    {
-    // Função auxiliar para validar produto
-    public static IResult ValidateProduct(Product product)
-    {
-        if (product == null)
-            return Results.BadRequest("Produto não informado.");
-        if (string.IsNullOrWhiteSpace(product.Code))
-            return Results.BadRequest("Código do produto é obrigatório.");
-        if (string.IsNullOrWhiteSpace(product.Description))
-            return Results.BadRequest("Descrição do produto é obrigatória.");
-        if (product.DepartmentId <= 0)
-            return Results.BadRequest("Departamento é obrigatório.");
-        if (product.Price <= 0)
-            return Results.BadRequest("Preço deve ser maior que zero.");
-        return null;
-    }
-    public static RouteGroupBuilder MapProductsEndpoints(this WebApplication app)
-    {
-        var router = app.MapGroup("/produtos").RequireAuthorization();
+        public class ProductResponse {
+            public Guid Id { get; set; }
+            public string? Code { get; set; }
+            public string? Description { get; set; }
+            public int DepartmentId { get; set; }
+            public decimal Price { get; set; }
+        }
 
-        // GET /produtos
-        router.MapGet("/", async ([FromServices] ProductRepository repository) =>
-            await repository.GetAllAsync()
-        );
-
-        // GET /produtos/{id}
-        router.MapGet("/{id}", async ([FromServices] ProductRepository repository, Guid id) =>
+        public static class ProductsEndpoints
         {
-            var product = await repository.GetByIdAsync(id);
-            if (product is null || !product.Status) return Results.NotFound();
-            return Results.Ok(product);
-        });
-
-        // POST /produtos
-        router.MapPost("/", async ([FromServices] ProductRepository repository, Product product) =>
+        // Função auxiliar para validar produto
+        public static IResult ValidateProduct(Product product)
         {
-            var validationResult = ValidateProduct(product);
-            if (validationResult != null)
-                return validationResult;
-            product.Status = true;
-            await repository.AddAsync(product);
+            if (product == null)
+                return Results.BadRequest("Produto não informado.");
+            if (string.IsNullOrWhiteSpace(product.Code))
+                return Results.BadRequest("Código do produto é obrigatório.");
+            if (string.IsNullOrWhiteSpace(product.Description))
+                return Results.BadRequest("Descrição do produto é obrigatória.");
+            if (product.DepartmentId <= 0)
+                return Results.BadRequest("Departamento é obrigatório.");
+            if (product.Price <= 0)
+                return Results.BadRequest("Preço deve ser maior que zero.");
 
-            var created = Results.Created($"/produtos/{product.Id}", product);
+            return Results.BadRequest("Produto inválido.");
+        }
+        public static RouteGroupBuilder MapProductsEndpoints(this WebApplication app)
+        {
+            var router = app.MapGroup("/produtos").RequireAuthorization();
 
-            var factory = new ConnectionFactory()
+            // GET /produtos
+            router.MapGet("/", async ([FromServices] ProductRepository repository) =>
             {
-                HostName = "rabbitmq",
-                UserName = "user",
-                Password = "password",
-                Port = 5672
-            };
+                var products = await repository.GetAllAsync();
+                var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var ativos = products.Where(p => p.Status)
+                    .Select(p => new ProductResponse {
+                        Id = p.Id,
+                        Code = p.Code,
+                        Description = p.Description,
+                        DepartmentId = p.DepartmentId,
+                        Price = p.Price
+                    }).ToList();
+                logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos] - {Count} produtos ativos retornados", DateTime.UtcNow, ativos.Count);
+                return Results.Ok(ativos);
+            });
 
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            channel.QueueDeclare(queue: "product-created",
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
-
-            var newEvent = new
+            // GET /produtos/{id}
+            router.MapGet("/{id}", async ([FromServices] ProductRepository repository, string id) =>
             {
-                product.Id,
-                product.Code,
-                product.Description,
-                product.DepartmentId,
-                product.Price,
-                CreatedAt = DateTime.UtcNow
-            };
-            var body = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(newEvent));
-            channel.BasicPublish(exchange: "",
-                                 routingKey: "product-created", 
-                                 basicProperties: null,
-                                 body: body);
+                if (!Guid.TryParse(id, out var guid))
+                    return Results.Ok("Id inválido. Deve ser um GUID.");
 
-            return created;
-        });
+                var product = await repository.GetByIdAsync(guid);
+                if (product is null || !product.Status) return Results.NotFound();
 
-        // PUT /produtos/{id}
-        router.MapPut("/{id}", async ([FromServices] ProductRepository repository, Guid id, Product input) =>
-        {
-            var validationResult = ValidateProduct(input);
-            if (validationResult != null)
-                return validationResult;
-            var product = await repository.GetByIdAsync(id);
-            if (product is null || !product.Status) return Results.NotFound();
-            product.Code = input.Code;
-            product.Description = input.Description;
-            product.DepartmentId = input.DepartmentId;
-            product.Price = input.Price;
-            await repository.UpdateAsync(product);
-            return Results.Ok(product);
-        });
+                var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var response = new ProductResponse {
+                    Id = product.Id,
+                    Code = product.Code,
+                    Description = product.Description,
+                    DepartmentId = product.DepartmentId,
+                    Price = product.Price
+                };
+                logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos/{{Id}}] - Produto retornado com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
+                return Results.Ok(response);
+            });
 
-        // DELETE /produtos/{id} (exclusão lógica)
-        router.MapDelete("/{id}", async ([FromServices] ProductRepository repository, Guid id) =>
-        {
-            var product = await repository.GetByIdAsync(id);
-            if (product is null || !product.Status) return Results.NotFound();
-            product.Status = false;
-            await repository.UpdateAsync(product);
-            return Results.NoContent();
-        });
+            // POST /produtos
+            router.MapPost("/", async ([FromServices] ProductRepository repository, [FromBody] ProductInput input) =>
+            {
+                if (input == null)
+                    return Results.BadRequest("Dados do produto não informados.");
+                if (string.IsNullOrWhiteSpace(input.Code))
+                    return Results.BadRequest("Código do produto é obrigatório.");
+                if (string.IsNullOrWhiteSpace(input.Description))
+                    return Results.BadRequest("Descrição do produto é obrigatória.");
+                if (input.DepartmentId <= 0)
+                    return Results.BadRequest("Departamento é obrigatório.");
+                if (input.Price <= 0)
+                    return Results.BadRequest("Preço deve ser maior que zero.");
 
-        return router;
-    }
+                if (await repository.ExistsByCodeOrDescriptionAsync(input.Code, input.Description))
+                    return Results.Conflict("Já existe um produto com o mesmo código ou nome cadastrado.");
+
+                input.Status = true; // Definindo status como ativo por padrão
+
+                await repository.AddAsync(input.Code, input.Description, input.DepartmentId, input.Price, input.Status);
+
+                // Buscar produto criado para retornar
+                var products = await repository.GetAllAsync();
+                var product = products.LastOrDefault(p => p.Code == input.Code);
+                if (product == null)
+                    return Results.Problem("Erro ao buscar produto criado.");
+                var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var response = new ProductResponse {
+                    Id = product.Id,
+                    Code = product.Code,
+                    Description = product.Description,
+                    DepartmentId = product.DepartmentId,
+                    Price = product.Price
+                };
+                logger.LogInformation("[SUCESSO] [{Time}] [POST /produtos] [Code: {Code}] - Produto criado com sucesso: {Id}", DateTime.UtcNow, product.Code, product.Id);
+                var created = Results.Created($"/produtos/{product.Id}", response);
+                return created;
+            });
+
+            // PUT /produtos/{id}
+            router.MapPut("/{id}", async ([FromServices] ProductRepository repository, string id, ProductUpdateInput input) =>
+            {
+                if (!Guid.TryParse(id, out var guid))
+                    return Results.BadRequest("Id inválido. Deve ser um GUID.");
+
+                var product = await repository.GetByIdAsync(guid);
+                if (product is null) return Results.NotFound();
+
+                // Validação manual dos campos
+                if (string.IsNullOrWhiteSpace(input.Description))
+                    return Results.BadRequest("Descrição do produto é obrigatória.");
+                if (input.DepartmentId <= 0)
+                    return Results.BadRequest("Departamento é obrigatório.");
+                if (input.Price <= 0)
+                    return Results.BadRequest("Preço deve ser maior que zero.");
+
+                product.Description = input.Description;
+                product.DepartmentId = input.DepartmentId;
+                product.Price = input.Price;
+
+                await repository.UpdateAsync(product);
+                var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var response = new ProductResponse {
+                    Id = product.Id,
+                    Code = product.Code,
+                    Description = product.Description,
+                    DepartmentId = product.DepartmentId,
+                    Price = product.Price
+                };
+                logger.LogInformation("[SUCESSO] [{Time}] [PUT /produtos/{{Id}}] - Produto atualizado com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
+                return Results.Ok(response);
+            });
+
+            // DELETE /produtos/{id} (exclusão lógica)
+            router.MapDelete("/{id}", async ([FromServices] ProductRepository repository, string id) =>
+            {
+                if (!Guid.TryParse(id, out var guid))
+                    return Results.BadRequest("Id inválido. Deve ser um GUID.");
+
+                var product = await repository.GetByIdAsync(guid);
+                if (product is null || !product.Status) return Results.NotFound();
+
+                    await repository.SoftDeleteAsync(guid);
+                    var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                    logger.LogInformation("[SUCESSO] [{Time}] [DELETE /produtos/{{Id}}] - Produto deletado (soft delete) com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
+                    return Results.NoContent();
+            });
+
+            return router;
+        }
+
+        // Classe auxiliar para input
+        public class ProductInput {
+            public string? Code { get; set; }
+            public string? Description { get; set; }
+            public int DepartmentId { get; set; }
+            public decimal Price { get; set; }
+            public bool Status { get; set; }
+        }
+
+        // Interface para atualização (PUT)
+        public class ProductUpdateInput {
+            public string? Description { get; set; }
+            public int DepartmentId { get; set; }
+            public decimal Price { get; set; }
+        }
     }
 }

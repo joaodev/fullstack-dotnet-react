@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProductsDotnetApi.Models;
 using ProductsDotnetApi.Data;
+using Backend.Factories;
+using Backend.Interfaces;
 
 namespace ProductsDotnetApi.Repositories
 {
@@ -23,7 +25,7 @@ namespace ProductsDotnetApi.Repositories
             return HashPassword(password) == hash;
         }
     }
-    
+
     public class UserRepository
     {
         private readonly AppDbContext _context;
@@ -48,9 +50,12 @@ namespace ProductsDotnetApi.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task AddAsync(User user)
+        private readonly IUserFactory _userFactory = new UserFactory();
+
+        public async Task AddAsync(string name, string email, string password)
         {
-            user.PasswordHash = PasswordHelper.HashPassword(user.PasswordHash);
+            var passwordHash = PasswordHelper.HashPassword(password);
+            var user = _userFactory.Create(name, email, passwordHash);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
@@ -68,6 +73,17 @@ namespace ProductsDotnetApi.Repositories
             if (user != null)
             {
                 _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SoftDeleteAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.Status = false;
+                _context.Users.Update(user);
                 await _context.SaveChangesAsync();
             }
         }

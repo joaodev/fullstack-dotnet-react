@@ -21,5 +21,7 @@ namespace ProductsDotnetApi.Models
         [Required]
         [MaxLength(100)]
         public string PasswordHash { get; set; } = string.Empty;
+
+        public bool Status { get; set; }
     }
 }
