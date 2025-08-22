@@ -29,6 +29,17 @@ public class Program
             });
         builder.Services.AddAuthorization();
 
+        // CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend",
+                policy => policy
+                    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
+        });
+
         // Swagger/OpenAPI
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -57,6 +68,8 @@ public class Program
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
+
+        app.UseCors("AllowFrontend");
 
         // Endpoints
         app.MapGet("/", () => "API online! 🚀");
