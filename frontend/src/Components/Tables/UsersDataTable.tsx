@@ -165,37 +165,65 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 	};
 
 	return (
-		<div className="card shadow-sm p-4 mb-4 animate__animated animate__fadeIn">
-			<h2 className="mb-4 fw-bold">Usuários</h2>
-			<Row className="mb-3 align-items-end">
-				<Col md={3}>
+		<>
+
+			<Row className="g-3 mb-3 align-items-end">
+				<Col xs={12} md={3}>
+					<Form.Label className="fw-bold">Buscar</Form.Label>
 					<Form.Control
 						type="text"
 						placeholder="Nome, email ou ID..."
 						value={filterText}
 						onChange={(e) => setFilterText(e.target.value)}
+						className="shadow-sm"
 					/>
 				</Col>
-				<Col md={2}>
-					<Button variant="success" className="w-100 d-flex align-items-center gap-2" onClick={exportToCSV}>
+				<Col xs={12} md={2}>
+					<Form.Label className="fw-bold" style={{ visibility: 'hidden' }}>Exportar</Form.Label>
+					<Button variant="success" className="w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" onClick={exportToCSV}>
 						<FaFileCsv /> Exportar CSV
 					</Button>
 				</Col>
 			</Row>
 			{feedback && (
-				<div className="mb-2">
-					<FormFeedback type={feedback.type} message={feedback.message} />
+				<div style={{ position: 'fixed', top: 32, right: 32, zIndex: 9999, minWidth: 320 }}>
+					<div
+						className={`toast show animate__animated animate__fadeIn border-0 shadow-lg ${feedback.type === 'success' ? 'bg-success' : 'bg-danger'} text-white`}
+						role="alert"
+						aria-live="assertive"
+						aria-atomic="true"
+						style={{ fontSize: '1.1rem', borderRadius: 12 }}
+					>
+						<div className="toast-header bg-transparent border-0 text-white d-flex align-items-center">
+							{feedback.type === 'success' && (
+								<span className="me-2" style={{ fontSize: '1.5rem', color: '#fff' }}><i className="bi bi-check-circle-fill"></i></span>
+							)}
+							{feedback.type === 'danger' && (
+								<span className="me-2" style={{ fontSize: '1.5rem', color: '#fff' }}><i className="bi bi-x-circle-fill"></i></span>
+							)}
+							<strong className="me-auto">
+								{feedback.message}
+							</strong>
+							<button type="button" className="btn-close btn-close-white ms-2" onClick={() => setFeedback(null)}></button>
+						</div>
+					</div>
 				</div>
 			)}
-			<DataTable
-				columns={columns}
-				data={filteredData}
-				pagination
-				highlightOnHover
-				striped
-				responsive
-				onRowClicked={handleRowClicked}
-			/>
+			<div className="table-responsive rounded-3 border shadow-lg overflow-auto">
+				<DataTable
+					columns={columns}
+					data={filteredData}
+					pagination
+					highlightOnHover
+					striped
+					responsive
+					onRowClicked={handleRowClicked}
+					customStyles={{
+						rows: { style: { minHeight: '48px' } },
+						headCells: { style: { fontWeight: 'bold', fontSize: '1rem' } },
+					}}
+				/>
+			</div>
 			{editMode && showModal && (
 				<UserEditModal
 					show={showModal}
@@ -220,7 +248,7 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 					deleting={false}
 				/>
 			)}
-		</div>
+		</>
 	);
 };
 

@@ -83,9 +83,6 @@ function Users() {
 
 	return (
 		<>
-			<Button variant="primary" className="mb-3" onClick={handleOpenModal}>
-				Cadastrar Usuário
-			</Button>
 			{error && <div className="alert alert-danger mt-5">{error}</div>}
 			<Navbar bg="dark" variant="dark" fixed="top" expand="lg">
 				<Container>
@@ -106,11 +103,21 @@ function Users() {
 			<Container>
 				<Row className="justify-content-md-center">
 					<Col md={12}>
-						<Card className="mt-4">
-							<Card.Body>
-								<Card.Title>Usuários</Card.Title>
+						<Card className="mt-4 shadow-sm rounded">
+							<Card.Body className="p-4">
+								<div className="d-flex justify-content-between align-items-center mb-3">
+									<h3 className="mb-0 fw-bold">Usuários</h3>
+									<Button
+										variant="success"
+										onClick={handleOpenModal}
+										style={{ minWidth: 180, fontWeight: 500 }}
+									>
+										<i className="bi bi-plus-lg" style={{ marginRight: 8 }}></i>
+										Cadastrar Usuário
+									</Button>
+								</div>
+								<hr />
 								<UsersDataTable data={usuarios} />
-								{/* Modal de cadastro usando UserModal */}
 								<UserModal
 									show={showModal}
 									onHide={handleCloseModal}

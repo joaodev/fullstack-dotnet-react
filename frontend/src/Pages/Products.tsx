@@ -167,7 +167,7 @@ const Products: React.FC = () => {
 				<Row className="justify-content-md-center">
 					<Col md={12}>
 						<Card className="mt-4">
-							<Card.Body>
+							<Card.Body className="p-4">
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Produtos</h3>
 									<Button
