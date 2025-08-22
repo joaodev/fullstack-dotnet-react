@@ -34,7 +34,7 @@ public class Program
         {
             options.AddPolicy("AllowFrontend",
                 policy => policy
-                    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+                    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials());
