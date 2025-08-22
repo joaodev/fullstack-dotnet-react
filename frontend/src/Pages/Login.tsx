@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import LoginForm from '../Components/Forms/LoginForm';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -40,30 +41,14 @@ function Login() {
           <Card>
             <Card.Body>
               <Card.Title>Login</Card.Title>
-              {error && <Alert variant="danger">{error}</Alert>}
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                  <Form.Label>Senha</Form.Label>
-                  <Form.Control
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Button variant="primary" type="submit">
-                  Entrar
-                </Button>
-              </Form>
+              <LoginForm
+                email={email}
+                password={password}
+                error={error}
+                onEmailChange={(e) => setEmail(e.target.value)}
+                onPasswordChange={(e) => setPassword(e.target.value)}
+                onSubmit={handleSubmit}
+              />
             </Card.Body>
           </Card>
         </Col>

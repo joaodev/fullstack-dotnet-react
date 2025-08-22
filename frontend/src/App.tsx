@@ -1,11 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import Login from './Login';
-import Home from './Home';
-import Products from './Products';
-import Departments from './Departments';
-import Users from './Users';
+import Login from './Pages/Login';
+import Home from './Pages/Home';
+import Products from './Pages/Products';
+import Users from './Pages/Users';
+import Departments from './Pages/Departments';
+
 
 function App() {
   return (
