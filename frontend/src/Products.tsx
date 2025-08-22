@@ -5,17 +5,22 @@ import { useNavigate } from 'react-router-dom';
 
 function Products() {
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ code: '', description: '', price: '', departmentId: '' });
+  const [form, setForm] = useState({
+    code: '',
+    description: '',
+    price: '',
+    departmentId: ''
+  });
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
   useEffect(() => {
     // Buscar departamentos ao abrir modal
     if (showModal) {
       const token = localStorage.getItem('token');
       fetch('http://localhost:8080/api/departamentos', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           setDepartments(Array.isArray(data) ? data : []);
         })
         .catch(() => setDepartments([]));
@@ -25,7 +30,7 @@ function Products() {
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
     setShowModal(false);
-  setForm({ code: '', description: '', price: '', departmentId: '' });
+    setForm({ code: '', description: '', price: '', departmentId: ''});
     setAlert(null);
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -66,14 +71,14 @@ function Products() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           code: form.code,
           description: form.description,
           price: priceNumber,
-          departmentId: form.departmentId
-        })
+          departmentId: form.departmentId,
+        }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -105,9 +110,9 @@ function Products() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     fetch('http://localhost:8080/api/produtos', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status === 401) {
           localStorage.removeItem('token');
           navigate('/');
@@ -115,7 +120,7 @@ function Products() {
         }
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data?.error) {
           setError(data.error);
         } else if (data) {
@@ -132,12 +137,12 @@ function Products() {
   return (
     <>
       {error && <div className="alert alert-danger mt-5">{error}</div>}
-      <Button variant="primary" className="mb-3" onClick={handleOpenModal}>Cadastrar Produto</Button>
+      <Button variant="primary" className="mb-3" onClick={handleOpenModal}>
+        Cadastrar Produto
+      </Button>
       <Navbar bg="dark" variant="dark" fixed="top" expand="lg">
         <Container>
-          <Navbar.Brand href="/home">
-            Controle de Produtos
-          </Navbar.Brand>
+          <Navbar.Brand href="/home">Controle de Produtos</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
@@ -145,7 +150,9 @@ function Products() {
               <Nav.Link href="/departamentos">Departamentos</Nav.Link>
               <Nav.Link href="/produtos">Produtos</Nav.Link>
             </Nav>
-            <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+            <Button variant="outline-light" onClick={handleLogout}>
+              Logout
+            </Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -157,41 +164,88 @@ function Products() {
                 <Card.Title>Produtos</Card.Title>
                 <ProductsDataTable data={produtos} />
                 {/* Modal de cadastro */}
-                <div className={`modal ${showModal ? 'd-block' : ''}`} tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <div
+                  className={`modal ${showModal ? 'd-block' : ''}`}
+                  tabIndex={-1}
+                  style={{ background: 'rgba(0,0,0,0.5)' }}
+                >
                   <div className="modal-dialog">
                     <div className="modal-content">
                       <div className="modal-header">
                         <h5 className="modal-title">Cadastrar Produto</h5>
-                        <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={handleCloseModal}
+                        ></button>
                       </div>
                       <form onSubmit={handleSubmit}>
                         <div className="modal-body">
-                          {alert && <div className={`alert alert-${alert.type}`}>{alert.message}</div>}
+                          {alert && (
+                            <div className={`alert alert-${alert.type}`}>{alert.message}</div>
+                          )}
                           <div className="mb-3">
                             <label className="form-label">Código</label>
-                            <input type="text" className="form-control" name="code" value={form.code} onChange={handleChange} required />
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="code"
+                              value={form.code}
+                              onChange={handleChange}
+                              required
+                            />
                           </div>
                           <div className="mb-3">
                             <label className="form-label">Nome</label>
-                            <input type="text" className="form-control" name="description" value={form.description} onChange={handleChange} required />
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="description"
+                              value={form.description}
+                              onChange={handleChange}
+                              required
+                            />
                           </div>
                           <div className="mb-3">
                             <label className="form-label">Preço</label>
-                            <input type="text" className="form-control" name="price" value={form.price} onChange={handleChange} required />
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="price"
+                              value={form.price}
+                              onChange={handleChange}
+                              required
+                            />
                           </div>
                           <div className="mb-3">
                             <label className="form-label">Departamento</label>
-                            <select className="form-select" name="departmentId" value={form.departmentId} onChange={handleChange} required>
+                            <select
+                              className="form-select"
+                              name="departmentId"
+                              value={form.departmentId}
+                              onChange={handleChange}
+                              required
+                            >
                               <option value="">Selecione...</option>
-                              {departments.map(dep => (
-                                <option key={dep.id} value={dep.id}>{dep.name}</option>
+                              {departments.map((dep) => (
+                                <option key={dep.id} value={dep.id}>
+                                  {dep.name}
+                                </option>
                               ))}
                             </select>
                           </div>
                         </div>
                         <div className="modal-footer">
-                          <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
-                          <button type="submit" className="btn btn-primary">Cadastrar</button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleCloseModal}
+                          >
+                            Cancelar
+                          </button>
+                          <button type="submit" className="btn btn-primary">
+                            Cadastrar
+                          </button>
                         </div>
                       </form>
                     </div>

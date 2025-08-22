@@ -18,7 +18,7 @@ namespace Backend.Migrations
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+            #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
@@ -97,7 +97,7 @@ namespace Backend.Migrations
 
                     b.ToTable("Users");
                 });
-#pragma warning restore 612, 618
+            #pragma warning restore 612, 618
         }
     }
 }

@@ -26,9 +26,9 @@ function Users() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password })
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -56,9 +56,9 @@ function Users() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     fetch('http://localhost:8080/api/usuarios', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status === 401) {
           localStorage.removeItem('token');
           navigate('/');
@@ -66,7 +66,7 @@ function Users() {
         }
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data?.error) {
           setError(data.error);
         } else if (data) {
@@ -82,13 +82,13 @@ function Users() {
 
   return (
     <>
-      <Button variant="primary" className="mb-3" onClick={handleOpenModal}>Cadastrar Usuário</Button>
+      <Button variant="primary" className="mb-3" onClick={handleOpenModal}>
+        Cadastrar Usuário
+      </Button>
       {error && <div className="alert alert-danger mt-5">{error}</div>}
       <Navbar bg="dark" variant="dark" fixed="top" expand="lg">
         <Container>
-          <Navbar.Brand href="/home">
-            Controle de Produtos
-          </Navbar.Brand>
+          <Navbar.Brand href="/home">Controle de Produtos</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
@@ -96,7 +96,9 @@ function Users() {
               <Nav.Link href="/departamentos">Departamentos</Nav.Link>
               <Nav.Link href="/produtos">Produtos</Nav.Link>
             </Nav>
-            <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+            <Button variant="outline-light" onClick={handleLogout}>
+              Logout
+            </Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -108,32 +110,72 @@ function Users() {
                 <Card.Title>Usuários</Card.Title>
                 <UsersDataTable data={usuarios} />
                 {/* Modal de cadastro */}
-                <div className={`modal ${showModal ? 'd-block' : ''}`} tabIndex={-1} style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <div
+                  className={`modal ${showModal ? 'd-block' : ''}`}
+                  tabIndex={-1}
+                  style={{ background: 'rgba(0,0,0,0.5)' }}
+                >
                   <div className="modal-dialog">
                     <div className="modal-content">
                       <div className="modal-header">
                         <h5 className="modal-title">Cadastrar Usuário</h5>
-                        <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={handleCloseModal}
+                        ></button>
                       </div>
                       <form onSubmit={handleSubmit}>
                         <div className="modal-body">
-                          {alert && <div className={`alert alert-${alert.type}`}>{alert.message}</div>}
+                          {alert && (
+                            <div className={`alert alert-${alert.type}`}>{alert.message}</div>
+                          )}
                           <div className="mb-3">
                             <label className="form-label">Nome</label>
-                            <input type="text" className="form-control" name="name" value={form.name} onChange={handleChange} required />
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="name"
+                              value={form.name}
+                              onChange={handleChange}
+                              required
+                            />
                           </div>
                           <div className="mb-3">
                             <label className="form-label">E-mail</label>
-                            <input type="email" className="form-control" name="email" value={form.email} onChange={handleChange} required />
+                            <input
+                              type="email"
+                              className="form-control"
+                              name="email"
+                              value={form.email}
+                              onChange={handleChange}
+                              required
+                            />
                           </div>
                           <div className="mb-3">
                             <label className="form-label">Senha</label>
-                            <input type="password" className="form-control" name="password" value={form.password} onChange={handleChange} required minLength={6} />
+                            <input
+                              type="password"
+                              className="form-control"
+                              name="password"
+                              value={form.password}
+                              onChange={handleChange}
+                              required
+                              minLength={6}
+                            />
                           </div>
                         </div>
                         <div className="modal-footer">
-                          <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
-                          <button type="submit" className="btn btn-primary">Cadastrar</button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleCloseModal}
+                          >
+                            Cancelar
+                          </button>
+                          <button type="submit" className="btn btn-primary">
+                            Cadastrar
+                          </button>
                         </div>
                       </form>
                     </div>
