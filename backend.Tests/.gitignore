@@ -1,0 +1,48 @@
+# .NET build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# ASP.NET Data Protection keys
+DataProtection-Keys/
+
+# NuGet packages
+*.nupkg
+packages/
+.nuget/
+
+# Entity Framework migrations
+migrations/
+
+# ASP.NET temporary files
+App_Data/
+App_Start/
+
+# Configuration files
+appsettings.*.json
+
+# Others
+*.db
+*.sqlite
+*.pdb
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+TestResults/

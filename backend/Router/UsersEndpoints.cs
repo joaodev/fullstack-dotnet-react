@@ -30,8 +30,8 @@ namespace ProductsDotnetApi.Router
             return Results.BadRequest("E-mail é obrigatório.");
         if (string.IsNullOrWhiteSpace(user.PasswordHash))
             return Results.BadRequest("Senha é obrigatória.");
-    // Pode adicionar validação de formato de e-mail, tamanho mínimo de senha, etc.
-    return Results.BadRequest("Usuário inválido.");
+        // Se passou por todas as validações, retorna null (usuário válido)
+        return null;
     }
     public static RouteGroupBuilder MapUsersEndpoints(this WebApplication app)
     {
