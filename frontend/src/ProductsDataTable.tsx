@@ -4,9 +4,10 @@ import { Form, Row, Col } from 'react-bootstrap';
 
 interface Product {
   id: string;
+  code: string;
   description: string;
   price: number;
-    departmentId?: string;
+  departmentId?: string;
 }
 
 interface ProductsDataTableProps {
@@ -15,8 +16,8 @@ interface ProductsDataTableProps {
 
 const columns: TableColumn<Product>[] = [
   {
-    name: 'ID',
-    selector: row => row.id,
+    name: 'Código',
+    selector: row => row.code,
     sortable: true,
   },
   {
@@ -24,11 +25,11 @@ const columns: TableColumn<Product>[] = [
     selector: row => row.description,
     sortable: true,
   },
-    {
-      name: 'Departamento',
-      selector: row => row.departmentId || '',
-      sortable: true,
-    },
+  {
+    name: 'Departamento',
+    selector: row => row.departmentId || '',
+    sortable: true,
+  },
   {
     name: 'Preço',
     selector: row => row.price,
@@ -41,16 +42,16 @@ const columns: TableColumn<Product>[] = [
 const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data }) => {
   const exportToCSV = () => {
     const csvRows = [];
-    const headers = ['ID', 'Nome', 'Departamento', 'Preço'];
+    const headers = ['Código', 'Nome', 'Departamento', 'Preço'];
     csvRows.push(headers.join(','));
-      filteredData.forEach((item: Product) => {
-        csvRows.push([
-          item.id,
-          item.description,
-          item.departmentId || '',
-          Number(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-        ].join(','));
-      });
+    filteredData.forEach((item: Product) => {
+      csvRows.push([
+        item.code,
+        item.description,
+        item.departmentId || '',
+        Number(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      ].join(','));
+    });
     const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -71,13 +72,13 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data }) => {
       data.filter((item: Product) => {
         const matchesText =
           item.description.toLowerCase().includes(filterText.toLowerCase()) ||
-          item.id.toLowerCase().includes(filterText.toLowerCase());
+          item.code.toLowerCase().includes(filterText.toLowerCase());
         const price = Number(item.price);
         const min = minPrice ? Number(minPrice) : undefined;
         const max = maxPrice ? Number(maxPrice) : undefined;
         const matchesMin = min === undefined || price >= min;
         const matchesMax = max === undefined || price <= max;
-      const matchesDept = !departmentFilter || (String(item.departmentId) === String(departmentFilter));
+        const matchesDept = !departmentFilter || (String(item.departmentId) === String(departmentFilter));
         return matchesText && matchesMin && matchesMax && matchesDept;
       })
     );
@@ -89,7 +90,7 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data }) => {
         <Col md={3}>
           <Form.Control
             type="text"
-            placeholder="Buscar por nome ou ID..."
+            placeholder="Buscar por nome ou código..."
             value={filterText}
             onChange={e => setFilterText(e.target.value)}
           />

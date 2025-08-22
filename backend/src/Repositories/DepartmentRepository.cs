@@ -19,6 +19,17 @@ namespace ProductsDotnetApi.Repositories
             _context = context;
         }
 
+        public async Task UpdateNameAsync(int id, string name)
+        {
+            var department = await _context.Departments.FindAsync(id);
+            if (department != null && department.Status)
+            {
+                department.Name = name;
+                _context.Departments.Update(department);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task<IEnumerable<Department>> GetAllAsync()
         {
             return await _context.Departments.ToListAsync();

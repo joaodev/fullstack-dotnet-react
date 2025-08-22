@@ -64,14 +64,14 @@ namespace ProductsDotnetApi.Router
                         Price = p.Price
                     }).ToList();
                 logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos] - {Count} produtos ativos retornados", DateTime.UtcNow, ativos.Count);
-                return Results.Ok(ativos);
+                    return Results.Json(ativos);
             });
 
             // GET /produtos/{id}
             router.MapGet("/{id}", async ([FromServices] ProductRepository repository, string id) =>
             {
                 if (!Guid.TryParse(id, out var guid))
-                    return Results.Ok("Id inválido. Deve ser um GUID.");
+                        return Results.Json(new { error = "Id inválido. Deve ser um GUID." });
 
                 var product = await repository.GetByIdAsync(guid);
                 if (product is null || !product.Status) return Results.NotFound();
@@ -85,25 +85,25 @@ namespace ProductsDotnetApi.Router
                     Price = product.Price
                 };
                 logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos/{{Id}}] - Produto retornado com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
-                return Results.Ok(response);
+                    return Results.Json(response);
             });
 
             // POST /produtos
             router.MapPost("/", async ([FromServices] ProductRepository repository, [FromBody] ProductInput input) =>
             {
                 if (input == null)
-                    return Results.BadRequest("Dados do produto não informados.");
+                        return Results.Json(new { error = "Dados do produto não informados." }, statusCode: 400);
                 if (string.IsNullOrWhiteSpace(input.Code))
-                    return Results.BadRequest("Código do produto é obrigatório.");
+                        return Results.Json(new { error = "Código do produto é obrigatório." }, statusCode: 400);
                 if (string.IsNullOrWhiteSpace(input.Description))
-                    return Results.BadRequest("Descrição do produto é obrigatória.");
+                        return Results.Json(new { error = "Descrição do produto é obrigatória." }, statusCode: 400);
                 if (input.DepartmentId <= 0)
-                    return Results.BadRequest("Departamento é obrigatório.");
+                        return Results.Json(new { error = "Departamento é obrigatório." }, statusCode: 400);
                 if (input.Price <= 0)
-                    return Results.BadRequest("Preço deve ser maior que zero.");
+                        return Results.Json(new { error = "Preço deve ser maior que zero." }, statusCode: 400);
 
                 if (await repository.ExistsByCodeOrDescriptionAsync(input.Code, input.Description))
-                    return Results.Conflict("Já existe um produto com o mesmo código ou nome cadastrado.");
+                        return Results.Json(new { error = "Já existe um produto com o mesmo código ou nome cadastrado." }, statusCode: 409);
 
                 input.Status = true; // Definindo status como ativo por padrão
 
@@ -113,7 +113,7 @@ namespace ProductsDotnetApi.Router
                 var products = await repository.GetAllAsync();
                 var product = products.LastOrDefault(p => p.Code == input.Code);
                 if (product == null)
-                    return Results.Problem("Erro ao buscar produto criado.");
+                        return Results.Json(new { error = "Erro ao buscar produto criado." }, statusCode: 500);
                 var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
                 var response = new ProductResponse {
                     Id = product.Id,
@@ -123,26 +123,25 @@ namespace ProductsDotnetApi.Router
                     Price = product.Price
                 };
                 logger.LogInformation("[SUCESSO] [{Time}] [POST /produtos] [Code: {Code}] - Produto criado com sucesso: {Id}", DateTime.UtcNow, product.Code, product.Id);
-                var created = Results.Created($"/produtos/{product.Id}", response);
-                return created;
+                    return Results.Json(response, statusCode: 201);
             });
 
             // PUT /produtos/{id}
             router.MapPut("/{id}", async ([FromServices] ProductRepository repository, string id, ProductUpdateInput input) =>
             {
                 if (!Guid.TryParse(id, out var guid))
-                    return Results.BadRequest("Id inválido. Deve ser um GUID.");
+                        return Results.Json(new { error = "Id inválido. Deve ser um GUID." }, statusCode: 400);
 
                 var product = await repository.GetByIdAsync(guid);
                 if (product is null) return Results.NotFound();
 
                 // Validação manual dos campos
                 if (string.IsNullOrWhiteSpace(input.Description))
-                    return Results.BadRequest("Descrição do produto é obrigatória.");
+                        return Results.Json(new { error = "Descrição do produto é obrigatória." }, statusCode: 400);
                 if (input.DepartmentId <= 0)
-                    return Results.BadRequest("Departamento é obrigatório.");
+                        return Results.Json(new { error = "Departamento é obrigatório." }, statusCode: 400);
                 if (input.Price <= 0)
-                    return Results.BadRequest("Preço deve ser maior que zero.");
+                        return Results.Json(new { error = "Preço deve ser maior que zero." }, statusCode: 400);
 
                 product.Description = input.Description;
                 product.DepartmentId = input.DepartmentId;
@@ -158,7 +157,7 @@ namespace ProductsDotnetApi.Router
                     Price = product.Price
                 };
                 logger.LogInformation("[SUCESSO] [{Time}] [PUT /produtos/{{Id}}] - Produto atualizado com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
-                return Results.Ok(response);
+                    return Results.Json(response);
             });
 
             // DELETE /produtos/{id} (exclusão lógica)

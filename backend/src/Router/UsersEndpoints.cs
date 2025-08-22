@@ -20,7 +20,7 @@ namespace ProductsDotnetApi.Router
     public static class UsersEndpoints
     {
     // Função auxiliar para validar usuário
-    public static IResult ValidateUser(User user)
+    public static IResult? ValidateUser(User user)
     {
         if (user == null)
             return Results.BadRequest("Usuário não informado.");
@@ -46,7 +46,7 @@ namespace ProductsDotnetApi.Router
                 .Select(u => new UserResponse { Id = u.Id, Name = u.Name, Email = u.Email })
                 .ToList();
             logger.LogInformation("[SUCESSO] [{Time}] [GET /usuarios] - {Count} usuários ativos retornados", DateTime.UtcNow, ativos.Count);
-            return Results.Ok(ativos);
+            return Results.Json(ativos);
         });
 
         // GET /usuarios/{id}
@@ -56,11 +56,11 @@ namespace ProductsDotnetApi.Router
             var usuario = await repository.GetByIdAsync(id);
             if (usuario is null || !usuario.Status) {
                 logger.LogWarning("[ERRO] [{Time}] [GET /usuarios/{Id}] - Usuário não encontrado ou inativo", DateTime.UtcNow, id);
-                return Results.NotFound();
+                return Results.Json(new { error = "Usuário não encontrado ou inativo" }, statusCode: 404);
             }
             var response = new UserResponse { Id = usuario.Id, Name = usuario.Name, Email = usuario.Email };
             logger.LogInformation("[SUCESSO] [{Time}] [GET /usuarios/{Id}] - Usuário retornado com sucesso: {Email}", DateTime.UtcNow, id, usuario.Email);
-            return Results.Ok(response);
+            return Results.Json(response);
         });
 
         // POST /usuarios
@@ -69,44 +69,43 @@ namespace ProductsDotnetApi.Router
             var logger = app.Services.GetRequiredService<ILogger<UserLog>>();
             if (input == null) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Dados do usuário não informados", DateTime.UtcNow);
-                return Results.BadRequest("Dados do usuário não informados.");
+                return Results.Json(new { error = "Dados do usuário não informados." }, statusCode: 400);
             }
             if (string.IsNullOrWhiteSpace(input.Name)) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Nome do usuário é obrigatório", DateTime.UtcNow);
-                return Results.BadRequest("Nome do usuário é obrigatório.");
+                return Results.Json(new { error = "Nome do usuário é obrigatório." }, statusCode: 400);
             }
             if (string.IsNullOrWhiteSpace(input.Email)) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - E-mail é obrigatório", DateTime.UtcNow);
-                return Results.BadRequest("E-mail é obrigatório.");
+                return Results.Json(new { error = "E-mail é obrigatório." }, statusCode: 400);
             }
             var emailRegex = new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             if (!emailRegex.IsMatch(input.Email)) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - E-mail em formato inválido: {Email}", DateTime.UtcNow, input.Email);
-                return Results.BadRequest("E-mail em formato inválido.");
+                return Results.Json(new { error = "E-mail em formato inválido." }, statusCode: 400);
             }
             if (string.IsNullOrWhiteSpace(input.Password)) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Senha é obrigatória", DateTime.UtcNow);
-                return Results.BadRequest("Senha é obrigatória.");
+                return Results.Json(new { error = "Senha é obrigatória." }, statusCode: 400);
             }
             if (input.Password.Length < 6) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Senha menor que 6 caracteres", DateTime.UtcNow);
-                return Results.BadRequest("Senha deve ter pelo menos 6 caracteres.");
+                return Results.Json(new { error = "Senha deve ter pelo menos 6 caracteres." }, statusCode: 400);
             }
             var existingUser = await repository.GetByEmailAsync(input.Email);
             if (existingUser != null) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - E-mail já cadastrado: {Email}", DateTime.UtcNow, input.Email);
-                return Results.Conflict("Já existe um usuário com o mesmo e-mail cadastrado.");
+                return Results.Json(new { error = "Já existe um usuário com o mesmo e-mail cadastrado." }, statusCode: 409);
             }
             await repository.AddAsync(input.Name, input.Email, input.Password);
             var user = await repository.GetByEmailAsync(input.Email);
             if (user == null) {
                 logger.LogError("[ERRO] [{Time}] [POST /usuarios] - Erro ao buscar usuário criado: {Email}", DateTime.UtcNow, input.Email);
-                return Results.Problem("Erro ao buscar usuário criado.");
+                return Results.Json(new { error = "Erro ao buscar usuário criado." }, statusCode: 500);
             }
             var response = new UserResponse { Id = user.Id, Name = user.Name, Email = user.Email };
             logger.LogInformation("[SUCESSO] [{Time}] [POST /usuarios] [Email: {Email}] - Usuário criado com sucesso: {Id}", DateTime.UtcNow, input.Email, user.Id);
-            var created = Results.Created($"/usuarios/{user.Id}", response);
-            return created;
+            return Results.Json(response, statusCode: 201);
         });
 
         // PUT /usuarios/{id}
@@ -116,28 +115,29 @@ namespace ProductsDotnetApi.Router
             var validationResult = ValidateUser(input);
             if (validationResult != null) {
                 logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Dados inválidos para atualização", DateTime.UtcNow, id);
-                return validationResult;
+                // Sempre retorna JSON de erro
+                return Results.Json(new { error = ((validationResult as IResult)?.ToString() ?? "Dados inválidos") }, statusCode: 400);
             }
             var user = await repository.GetByIdAsync(id);
             if (user is null) {
                 logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Usuário não encontrado", DateTime.UtcNow, id);
-                return Results.NotFound();
+                return Results.Json(new { error = "Usuário não encontrado" }, statusCode: 404);
             }
             input.Status = user.Status;
             var emailRegex = new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             if (!emailRegex.IsMatch(input.Email)) {
                 logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - E-mail em formato inválido: {Email}", DateTime.UtcNow, id, input.Email);
-                return Results.BadRequest("E-mail em formato inválido.");
+                return Results.Json(new { error = "E-mail em formato inválido." }, statusCode: 400);
             }
             if (string.IsNullOrWhiteSpace(input.PasswordHash) || input.PasswordHash.Length < 6) {
                 logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Senha menor que 6 caracteres", DateTime.UtcNow, id);
-                return Results.BadRequest("Senha deve ter pelo menos 6 caracteres.");
+                return Results.Json(new { error = "Senha deve ter pelo menos 6 caracteres." }, statusCode: 400);
             }
             if (user.Email != input.Email) {
                 var existingUser = await repository.GetByEmailAsync(input.Email);
                 if (existingUser != null && existingUser.Id != id) {
                     logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - E-mail já cadastrado: {Email}", DateTime.UtcNow, id, input.Email);
-                    return Results.Conflict("Já existe um usuário com o mesmo e-mail cadastrado.");
+                    return Results.Json(new { error = "Já existe um usuário com o mesmo e-mail cadastrado." }, statusCode: 409);
                 }
             }
             user.Name = input.Name;
@@ -146,11 +146,11 @@ namespace ProductsDotnetApi.Router
             await repository.UpdateAsync(user);
             if (user == null) {
                 logger.LogError("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Erro ao atualizar usuário", DateTime.UtcNow, id);
-                return Results.Problem("Erro ao atualizar usuário.");
+                return Results.Json(new { error = "Erro ao atualizar usuário." }, statusCode: 500);
             }
             var response = new UserResponse { Id = user.Id, Name = user.Name, Email = user.Email };
             logger.LogInformation("[SUCESSO] [{Time}] [PUT /usuarios/{Id}] [Email: {Email}] - Usuário atualizado com sucesso", DateTime.UtcNow, id, user.Email);
-            return Results.Ok(response);
+            return Results.Json(response);
         });
 
         // DELETE /usuarios/{id}
@@ -160,7 +160,7 @@ namespace ProductsDotnetApi.Router
             var user = await repository.GetByIdAsync(id);
             if (user is null || !user.Status) {
                 logger.LogWarning("[ERRO] [{Time}] [DELETE /usuarios/{Id}] - Usuário não encontrado ou inativo", DateTime.UtcNow, id);
-                return Results.NotFound();
+                return Results.Json(new { error = "Usuário não encontrado ou inativo" }, statusCode: 404);
             }
             await repository.SoftDeleteAsync(id);
             logger.LogInformation("[SUCESSO] [{Time}] [DELETE /usuarios/{Id}] [Email: {Email}] - Usuário deletado (soft delete) com sucesso", DateTime.UtcNow, id, user.Email);
