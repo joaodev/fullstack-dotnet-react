@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import DepartmentDetailsModal from '../Modals/DepartmentDetailsModal';
 import DepartmentEditModal from '../Modals/DepartmentEditModal';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Form, Row, Col } from 'react-bootstrap';
+import FormFeedback from '../Forms/FormFeedback';
+import { FaFileCsv } from 'react-icons/fa';
 
 interface Department {
 	id: string;
@@ -161,33 +162,39 @@ const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => 
     }
   };
 
-	return (
-		<>
-			<Row className="mb-3">
-				<Col md={2}>
-					<button className="btn btn-success w-100" onClick={exportToCSV}>
-						Exportar CSV
-					</button>
-				</Col>
-				<Col md={4}>
-					<Form.Control
-						type="text"
-						placeholder="Filtrar por nome ou ID"
-						value={filterText}
-						onChange={(e) => setFilterText(e.target.value)}
+			return (
+				<div className="card shadow-sm p-4 mb-4 animate__animated animate__fadeIn">
+					<h2 className="mb-4 fw-bold">Departamentos</h2>
+					<Row className="mb-3 align-items-end">
+						<Col md={3}>
+							<Form.Control
+								type="text"
+								placeholder="Nome ou ID..."
+								value={filterText}
+								onChange={(e) => setFilterText(e.target.value)}
+							/>
+						</Col>
+						<Col md={2}>
+							<Button variant="success" className="w-100 d-flex align-items-center gap-2" onClick={exportToCSV}>
+								<FaFileCsv /> Exportar CSV
+							</Button>
+						</Col>
+						{/* Espaço para botão de cadastro, se desejar adicionar */}
+					</Row>
+					{feedback && (
+						<div className="mb-2">
+							<FormFeedback type={feedback.type} message={feedback.message} />
+						</div>
+					)}
+					<DataTable
+						columns={columns}
+						data={filteredData}
+						pagination
+						highlightOnHover
+						striped
+						responsive
+						onRowClicked={handleRowClicked}
 					/>
-				</Col>
-			</Row>
-			<DataTable
-				title="Departamentos"
-				columns={columns}
-				data={filteredData}
-				pagination
-				highlightOnHover
-				striped
-				responsive
-				onRowClicked={handleRowClicked}
-			/>
 					{editMode && showModal ? (
 						<DepartmentEditModal
 							show={showModal}
@@ -208,8 +215,8 @@ const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => 
 							deleting={false}
 						/>
 					) : null}
-		</>
-	);
+				</div>
+			);
 };
 
 export default DepartmentsDataTable;

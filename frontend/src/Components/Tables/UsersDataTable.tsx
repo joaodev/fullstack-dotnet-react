@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { Form, Row, Col } from 'react-bootstrap';
+import { Form, Row, Col, Button } from 'react-bootstrap';
+import FormFeedback from '../Forms/FormFeedback';
 import UserDetailsModal from '../Modals/UserDetailsModal';
 import UserEditModal from '../Modals/UserEditModal';
+import { FaFileCsv } from 'react-icons/fa';
 
 interface User {
 	id: string;
@@ -15,21 +17,9 @@ interface UsersDataTableProps {
 }
 
 const columns: TableColumn<User>[] = [
-	{
-		name: 'ID',
-		selector: (row) => row.id,
-		sortable: true,
-	},
-	{
-		name: 'Nome',
-		selector: (row) => row.name,
-		sortable: true,
-	},
-	{
-		name: 'Email',
-		selector: (row) => row.email,
-		sortable: true,
-	},
+	{ name: 'ID', selector: (row) => row.id, sortable: true },
+	{ name: 'Nome', selector: (row) => row.name, sortable: true },
+	{ name: 'Email', selector: (row) => row.email, sortable: true },
 ];
 
 const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
@@ -39,9 +29,9 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 	const [showModal, setShowModal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [feedback, setFeedback] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
-	const [editName, setEditName] = useState<string>('');
-	const [editEmail, setEditEmail] = useState<string>('');
-	const [editMode, setEditMode] = useState<boolean>(false);
+	const [editMode, setEditMode] = useState(false);
+	const [editName, setEditName] = useState('');
+	const [editEmail, setEditEmail] = useState('');
 
 	useEffect(() => {
 		setFilteredData(
@@ -49,8 +39,8 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 				(item: User) =>
 					item.name.toLowerCase().includes(filterText.toLowerCase()) ||
 					item.email.toLowerCase().includes(filterText.toLowerCase()) ||
-					item.id.toLowerCase().includes(filterText.toLowerCase()),
-			),
+					item.id.toLowerCase().includes(filterText.toLowerCase())
+			)
 		);
 	}, [filterText, data]);
 
@@ -67,6 +57,7 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 		setEditEmail(selectedUser.email);
 		setEditMode(true);
 		setFeedback(null);
+		setShowModal(true);
 	};
 
 	const handleEditSave = async () => {
@@ -76,17 +67,14 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 		setFeedback(null);
 		const token = localStorage.getItem('token');
 		try {
-			const response = await fetch(
-				`http://localhost:8080/api/usuarios/${selectedUser.id}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify({ name: editName, email: editEmail }),
+			const response = await fetch(`http://localhost:8080/api/usuarios/${selectedUser.id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
 				},
-			);
+				body: JSON.stringify({ name: editName, email: editEmail }),
+			});
 			if (!response.ok) {
 				setFeedback({ type: 'danger', message: 'Erro ao editar usuário' });
 				setLoading(false);
@@ -95,15 +83,16 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 			setFilteredData((prev) =>
 				prev.map((user) =>
 					user.id === selectedUser.id ? { ...user, name: editName, email: editEmail } : user
-				),
+				)
 			);
 			setFeedback({ type: 'success', message: 'Usuário editado com sucesso!' });
 			setLoading(false);
 			setTimeout(() => {
 				setShowModal(false);
 				setSelectedUser(null);
+				setEditMode(false);
 				setFeedback(null);
-			}, 3000);
+			}, 1200);
 		} catch (err) {
 			setFeedback({ type: 'danger', message: 'Erro ao editar usuário' });
 			setLoading(false);
@@ -117,7 +106,7 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 		setFeedback(null);
 		const token = localStorage.getItem('token');
 		try {
-			const response = await fetch(`http://localhost:8080/api/usuarios/${selectedUser?.id}`, {
+			const response = await fetch(`http://localhost:8080/api/usuarios/${selectedUser.id}`, {
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -128,14 +117,15 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 				setLoading(false);
 				return;
 			}
-			setFilteredData((prev) => prev.filter((user) => user.id !== selectedUser?.id));
+			setFilteredData((prev) => prev.filter((user) => user.id !== selectedUser.id));
 			setFeedback({ type: 'success', message: 'Usuário excluído com sucesso!' });
 			setLoading(false);
 			setTimeout(() => {
 				setShowModal(false);
 				setSelectedUser(null);
+				setEditMode(false);
 				setFeedback(null);
-			}, 3000);
+			}, 1200);
 		} catch (err) {
 			setFeedback({ type: 'danger', message: 'Erro ao excluir usuário' });
 			setLoading(false);
@@ -175,24 +165,29 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 	};
 
 	return (
-		<>
-			<Row className="mb-3">
-				<Col md={6}>
+		<div className="card shadow-sm p-4 mb-4 animate__animated animate__fadeIn">
+			<h2 className="mb-4 fw-bold">Usuários</h2>
+			<Row className="mb-3 align-items-end">
+				<Col md={3}>
 					<Form.Control
 						type="text"
-						placeholder="Buscar por nome, email ou ID..."
+						placeholder="Nome, email ou ID..."
 						value={filterText}
 						onChange={(e) => setFilterText(e.target.value)}
 					/>
 				</Col>
 				<Col md={2}>
-					<button className="btn btn-success w-100" onClick={exportToCSV}>
-						Exportar CSV
-					</button>
+					<Button variant="success" className="w-100 d-flex align-items-center gap-2" onClick={exportToCSV}>
+						<FaFileCsv /> Exportar CSV
+					</Button>
 				</Col>
 			</Row>
+			{feedback && (
+				<div className="mb-2">
+					<FormFeedback type={feedback.type} message={feedback.message} />
+				</div>
+			)}
 			<DataTable
-				title="Usuários"
 				columns={columns}
 				data={filteredData}
 				pagination
@@ -201,7 +196,6 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 				responsive
 				onRowClicked={handleRowClicked}
 			/>
-
 			{editMode && showModal && (
 				<UserEditModal
 					show={showModal}
@@ -215,7 +209,6 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 					onCancel={handleEditCancel}
 				/>
 			)}
-
 			{!editMode && showModal && (
 				<UserDetailsModal
 					show={showModal}
@@ -227,10 +220,8 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 					deleting={false}
 				/>
 			)}
-		</>
+		</div>
 	);
 };
 
 export default UsersDataTable;
-
-

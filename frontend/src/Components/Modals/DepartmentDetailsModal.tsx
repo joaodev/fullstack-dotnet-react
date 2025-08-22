@@ -29,7 +29,7 @@ const DepartmentDetailsModal: React.FC<DepartmentDetailsModalProps> = ({
     </Modal.Header>
     <Modal.Body className="bg-light animate__animated animate__fadeIn">
       {department && (
-        <div className="card shadow-lg p-3 mb-2 rounded-3 border animate__animated animate__fadeIn">
+        <div className="card shadow-sm p-3 mb-3 rounded-3 border-0 bg-white animate__animated animate__fadeIn">
           <div className="mb-2">
             <strong>Nome:</strong> {department.name}
           </div>
@@ -47,21 +47,19 @@ const DepartmentDetailsModal: React.FC<DepartmentDetailsModalProps> = ({
         </div>
       )}
     </Modal.Body>
-    <Modal.Footer className="border-0">
-      {!deleting ? (
-        <>
-          <Button variant="primary" size="lg" onClick={onEdit} disabled={loading}>
-            Editar
-          </Button>
-          <Button variant="danger" size="lg" onClick={onDelete} disabled={loading}>
-            Excluir
-          </Button>
-          <Button variant="secondary" size="lg" onClick={onHide} disabled={loading}>
-            Fechar
-          </Button>
-        </>
-      ) : (
-        <div className="w-100 text-center fw-bold fs-5 text-danger">Excluindo...</div>
+    <Modal.Footer className="border-0 d-flex justify-content-end gap-2">
+      <Button variant="secondary" onClick={onHide} disabled={loading}>
+        Fechar
+      </Button>
+      {onEdit && (
+        <Button variant="success" onClick={onEdit} disabled={loading}>
+          Editar
+        </Button>
+      )}
+      {onDelete && (
+        <Button variant="danger" onClick={onDelete} disabled={deleting || loading}>
+          {deleting ? 'Excluindo...' : 'Excluir'}
+        </Button>
       )}
     </Modal.Footer>
   </Modal>

@@ -1,11 +1,15 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
+import TextField from '../Forms/TextField';
+import FormActions from '../Forms/FormActions';
+import FormFeedback from '../Forms/FormFeedback';
 
 interface UserEditModalProps {
   show: boolean;
   onHide: () => void;
   name: string;
   email: string;
+  error?: string;
   loading?: boolean;
   onChangeName: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onChangeEmail: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -18,6 +22,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
   onHide,
   name,
   email,
+  error,
   loading,
   onChangeName,
   onChangeEmail,
@@ -30,36 +35,10 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     </Modal.Header>
     <Modal.Body className="bg-light animate__animated animate__fadeIn">
       <form onSubmit={onSave}>
-        <div className="mb-3">
-          <label className="form-label">Nome</label>
-          <input
-            type="text"
-            className="form-control"
-            value={name}
-            onChange={onChangeName}
-            disabled={loading}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={onChangeEmail}
-            disabled={loading}
-            required
-          />
-        </div>
-        <div className="d-flex justify-content-end gap-2">
-          <Button variant="secondary" onClick={onCancel ? onCancel : onHide} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button variant="success" type="submit" disabled={loading}>
-            Salvar
-          </Button>
-        </div>
+        {error && <FormFeedback type="danger" message={error} />}
+        <TextField label="Nome" name="name" value={name} onChange={onChangeName} required />
+        <TextField label="Email" name="email" value={email} onChange={onChangeEmail} type="email" required />
+        <FormActions onCancel={onCancel ? onCancel : onHide} loading={loading} submitLabel="Salvar" />
       </form>
     </Modal.Body>
   </Modal>
