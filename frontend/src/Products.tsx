@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Row, Col, Card, Button, Navbar, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Navbar, Nav } from 'react-bootstrap';
+import ProductsDataTable from './ProductsDataTable';
 import { useNavigate } from 'react-router-dom';
 
 function Products() {
@@ -8,15 +9,20 @@ function Products() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
     fetch('http://localhost:8080/api/produtos', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
-      .then(data => setProdutos(data));
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data) setProdutos(data);
+      });
   }, [navigate]);
 
   const handleLogout = () => {
@@ -48,24 +54,7 @@ function Products() {
             <Card className="mt-4">
               <Card.Body>
                 <Card.Title>Produtos</Card.Title>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Nome</th>
-                      <th>Preço</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {produtos.map((p: any) => (
-                      <tr key={p.id}>
-                        <td>{p.id}</td>
-                        <td>{p.description}</td>
-                        <td>{p.price}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                <ProductsDataTable data={produtos} />
               </Card.Body>
             </Card>
           </Col>

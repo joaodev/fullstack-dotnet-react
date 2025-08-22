@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Navbar, Nav, Table, Card, Row, Col } from 'react-bootstrap';
+import { Container, Button, Navbar, Nav, Card, Row, Col } from 'react-bootstrap';
+import DepartmentsDataTable from './DepartmentsDataTable';
 import { useNavigate } from 'react-router-dom';
 
 function Departments() {
@@ -11,9 +12,18 @@ function Departments() {
     fetch('http://localhost:8080/api/departamentos', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
-      .then(data => setDepartamentos(data));
-  }, []);
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data) setDepartamentos(data);
+      });
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -44,22 +54,7 @@ function Departments() {
             <Card className="mt-4">
               <Card.Body>
                 <Card.Title>Departamentos</Card.Title>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Nome</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {departamentos.map((d: any) => (
-                      <tr key={d.id}>
-                        <td>{d.id}</td>
-                        <td>{d.name}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                <DepartmentsDataTable data={departamentos} />
               </Card.Body>
             </Card>
           </Col>

@@ -1,0 +1,85 @@
+import React, { useState, useEffect } from 'react';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import { Form, Row, Col } from 'react-bootstrap';
+
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface DepartmentsDataTableProps {
+  data: Department[];
+}
+
+const columns: TableColumn<Department>[] = [
+  {
+    name: 'ID',
+    selector: row => row.id,
+    sortable: true,
+  },
+  {
+    name: 'Nome',
+    selector: row => row.name,
+    sortable: true,
+  },
+];
+
+const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => {
+  const [filterText, setFilterText] = useState('');
+  const [filteredData, setFilteredData] = useState<Department[]>(data);
+
+  useEffect(() => {
+    setFilteredData(
+      data.filter((item: Department) =>
+        item.name.toLowerCase().includes(filterText.toLowerCase()) ||
+        item.id.toLowerCase().includes(filterText.toLowerCase())
+      )
+    );
+  }, [filterText, data]);
+
+  const exportToCSV = () => {
+    const csvRows = [];
+    const headers = ['ID', 'Nome'];
+    csvRows.push(headers.join(','));
+    filteredData.forEach((item: Department) => {
+      csvRows.push([item.id, item.name].join(','));
+    });
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'departamentos.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <>
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Control
+            type="text"
+            placeholder="Buscar por nome ou ID..."
+            value={filterText}
+            onChange={e => setFilterText(e.target.value)}
+          />
+        </Col>
+        <Col md={2}>
+          <button className="btn btn-success w-100" onClick={exportToCSV}>Exportar CSV</button>
+        </Col>
+      </Row>
+      <DataTable
+        title="Departamentos"
+        columns={columns}
+        data={filteredData}
+        pagination
+        highlightOnHover
+        striped
+        responsive
+      />
+    </>
+  );
+};
+
+export default DepartmentsDataTable;

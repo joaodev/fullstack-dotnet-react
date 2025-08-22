@@ -1,8 +1,27 @@
+import React, { useEffect } from 'react';
 import { Container, Button, Navbar, Nav } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 function Home() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+    // Exemplo de chamada protegida (ajuste conforme necessidade real)
+    fetch('http://localhost:8080/api/home', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+        }
+      });
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
