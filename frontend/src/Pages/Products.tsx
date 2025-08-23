@@ -44,18 +44,16 @@ const Products: React.FC = () => {
 	}, [navigate]);
 
 	useEffect(() => {
-		if (showModal) {
-			const token = localStorage.getItem('token');
-			fetch('http://localhost:8080/api/departamentos', {
-				headers: { Authorization: `Bearer ${token}` },
+		const token = localStorage.getItem('token');
+		fetch('http://localhost:8080/api/departamentos', {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				setDepartments(Array.isArray(data) ? data : []);
 			})
-				.then((res) => res.json())
-				.then((data) => {
-					setDepartments(Array.isArray(data) ? data : []);
-				})
-				.catch(() => setDepartments([]));
-		}
-	}, [showModal]);
+			.catch(() => setDepartments([]));
+	}, []);
 
 	const handleOpenModal = () => setShowModal(true);
 	const handleCloseModal = () => {
@@ -164,14 +162,14 @@ const Products: React.FC = () => {
 				</Container>
 			</Navbar>
 			<Container>
-				<Row className="justify-content-md-center">
+				<Row className="justify-content-md-center pt-3">
 					<Col md={12}>
 						<Card className="mt-4">
 							<Card.Body className="p-4">
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Produtos</h3>
 									<Button
-										variant="success"
+										variant="dark"
 										onClick={handleOpenModal}
 										style={{ minWidth: 180, fontWeight: 500 }}
 									>
@@ -180,7 +178,7 @@ const Products: React.FC = () => {
 									</Button>
 								</div>
 								<hr />
-								<ProductsDataTable data={produtos} />
+								<ProductsDataTable data={produtos} departments={departments} />
 								<ProductModal
 									show={showModal}
 									onHide={handleCloseModal}

@@ -4,14 +4,7 @@ import TextField from './TextField';
 import FormFeedback from './FormFeedback';
 import FormActions from './FormActions';
 
-interface DepartmentFormProps {
-  name: string;
-  error?: string;
-  loading?: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-}
+import { DepartmentFormProps } from '../../Interfaces/DepartmentFormProps';
 
 const DepartmentForm: React.FC<DepartmentFormProps> = ({ name, error, loading, onChange, onSubmit, onCancel }) => (
   <form onSubmit={onSubmit}>

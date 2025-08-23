@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Container, Button, Navbar, Nav } from 'react-bootstrap';
+import { Container, Button, Navbar, Nav, Row, Col } from 'react-bootstrap';
+import { FaUsers, FaBuilding, FaBoxOpen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 function Home() {
@@ -46,35 +47,35 @@ function Home() {
         </Container>
       </Navbar>
       <Container className="mt-5 pt-5">
-        <div className="d-flex justify-content-between">
-          <div className="card text-center" style={{ width: '18rem' }}>
-            <div className="card-body">
-              <h5 className="card-title">Usuários</h5>
-              <p className="card-text">Total: 1</p>
-              <Button variant="primary" href="/usuarios">
-                Ver Usuários
-              </Button>
-            </div>
-          </div>
-          <div className="card text-center" style={{ width: '18rem' }}>
-            <div className="card-body">
-              <h5 className="card-title">Departamentos</h5>
-              <p className="card-text">Total: 2</p>
-              <Button variant="primary" href="/departamentos">
-                Ver Departamentos
-              </Button>
-            </div>
-          </div>
-          <div className="card text-center" style={{ width: '18rem' }}>
-            <div className="card-body">
-              <h5 className="card-title">Produtos</h5>
-              <p className="card-text">Total: 3</p>
-              <Button variant="primary" href="/produtos">
-                Ver Produtos
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Row className="g-4 justify-content-center">
+          <Col xs={12} md={4}>
+            <a href="/usuarios" style={{ textDecoration: 'none' }}>
+              <div className="card shadow-lg border-0 text-white text-center p-4" style={{ background: 'linear-gradient(135deg, #007bff 70%, #0056b3 100%)', minHeight: 220 }}>
+                <FaUsers size={56} className="mb-3" />
+                <h2 className="fw-bold">1</h2>
+                <h5 className="mb-2">Usuários</h5>
+              </div>
+            </a>
+          </Col>
+          <Col xs={12} md={4}>
+            <a href="/departamentos" style={{ textDecoration: 'none' }}>
+              <div className="card shadow-lg border-0 text-white text-center p-4" style={{ background: 'linear-gradient(135deg, #28a745 70%, #218838 100%)', minHeight: 220 }}>
+                <FaBuilding size={56} className="mb-3" />
+                <h2 className="fw-bold">2</h2>
+                <h5 className="mb-2">Departamentos</h5>
+              </div>
+            </a>
+          </Col>
+          <Col xs={12} md={4}>
+            <a href="/produtos" style={{ textDecoration: 'none' }}>
+              <div className="card shadow-lg border-0 text-white text-center p-4" style={{ background: 'linear-gradient(135deg, #fd7e14 70%, #e8590c 100%)', minHeight: 220 }}>
+              <FaBoxOpen size={56} className="mb-3" />
+              <h2 className="fw-bold">3</h2>
+              <h5 className="mb-2">Produtos</h5>
+              </div>
+            </a>
+          </Col>
+        </Row>
       </Container>
     </>
   );

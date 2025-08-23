@@ -5,6 +5,7 @@ import FormFeedback from '../Forms/FormFeedback';
 import UserDetailsModal from '../Modals/UserDetailsModal';
 import UserEditModal from '../Modals/UserEditModal';
 import { FaFileCsv } from 'react-icons/fa';
+import UserFilters from '../Filters/UserFilters';
 
 interface User {
 	id: string;
@@ -167,24 +168,11 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 	return (
 		<>
 
-			<Row className="g-3 mb-3 align-items-end">
-				<Col xs={12} md={3}>
-					<Form.Label className="fw-bold">Buscar</Form.Label>
-					<Form.Control
-						type="text"
-						placeholder="Nome, email ou ID..."
-						value={filterText}
-						onChange={(e) => setFilterText(e.target.value)}
-						className="shadow-sm"
-					/>
-				</Col>
-				<Col xs={12} md={2}>
-					<Form.Label className="fw-bold" style={{ visibility: 'hidden' }}>Exportar</Form.Label>
-					<Button variant="success" className="w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" onClick={exportToCSV}>
-						<FaFileCsv /> Exportar CSV
-					</Button>
-				</Col>
-			</Row>
+			<UserFilters
+				filterText={filterText}
+				onFilterTextChange={(e) => setFilterText(e.target.value)}
+				onExportCSV={exportToCSV}
+			/>
 			{feedback && (
 				<div style={{ position: 'fixed', top: 32, right: 32, zIndex: 9999, minWidth: 320 }}>
 					<div

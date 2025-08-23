@@ -1,0 +1,39 @@
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%);
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.app-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #e3f0ff 0%, #f8f9fa 100%);
+  padding-bottom: 40px;
+}
+
+/* Cards dashboard */
+.card {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08) !important;
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Botões */
+.btn {
+  font-weight: 500;
+  border-radius: 0.75rem;
+}
+
+/* Títulos */
+h1, h2, h3, h4, h5 {
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 700;
+}
+
+/* Toast */
+.toast {
+  border-radius: 1rem !important;
+}

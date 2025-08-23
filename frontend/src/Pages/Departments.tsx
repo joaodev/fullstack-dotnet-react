@@ -120,14 +120,14 @@ function Departments() {
 				</Container>
 			</Navbar>
 			<Container>
-				<Row className="justify-content-md-center">
+				<Row className="justify-content-md-center pt-3">
 					<Col md={12}>
 						<Card className="mt-4 shadow-sm rounded">
 							<Card.Body className="p-4">
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Departamentos</h3>
 									<Button
-										variant="success"
+										variant="dark"
 										onClick={handleOpenModal}
 										style={{ minWidth: 180, fontWeight: 500 }}
 									>

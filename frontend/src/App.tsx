@@ -6,12 +6,13 @@ import Home from './Pages/Home';
 import Products from './Pages/Products';
 import Users from './Pages/Users';
 import Departments from './Pages/Departments';
+import './App.css';
 
 
 function App() {
   return (
     <BrowserRouter>
-      <Container className="mt-5">
+      <Container className="app-bg mt-5">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />

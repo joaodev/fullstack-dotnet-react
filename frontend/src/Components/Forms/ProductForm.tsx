@@ -1,20 +1,9 @@
 import React from 'react';
-
-interface ProductFormProps {
-  code: string;
-  description: string;
-  price: string;
-  departmentId: string;
-  departments: { id: string; name: string }[];
-  error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-}
+import { ProductFormProps } from '../../Interfaces/ProductFormProps';
 
 const ProductForm: React.FC<ProductFormProps> = ({ code, description, price, departmentId, departments, error, onChange, onSubmit, onCancel }) => (
   <form onSubmit={onSubmit}>
-    {error && <div className={`alert alert-danger`}>{error}</div>}
+    {error && <div className="alert alert-danger">{error}</div>}
     <div className="mb-3">
       <label className="form-label">Código</label>
       <input
