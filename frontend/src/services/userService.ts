@@ -9,6 +9,14 @@ export interface User {
 const API_URL = 'http://localhost:8080/api/usuarios';
 const API_TOTAL_URL = 'http://localhost:8080/api/usuarios/total';
 
+export async function fetchUserById(id: string, token?: string): Promise<User> {
+  const response = await fetch(`${API_URL}/${id}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!response.ok) throw new Error('Erro ao buscar usuário');
+  return await response.json();
+}
+
 export async function fetchUsersTotal(token: string): Promise<number> {
   const response = await fetch(API_TOTAL_URL, {
     headers: { Authorization: `Bearer ${token}` },
