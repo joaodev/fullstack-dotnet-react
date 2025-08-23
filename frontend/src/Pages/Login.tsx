@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import LoginForm from '../Components/Forms/LoginForm';
+import { login } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -20,13 +21,7 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!response.ok) throw new Error('Login inválido');
-      const data = await response.json();
+      const data = await login({ email, password });
       localStorage.setItem('token', data.token);
       navigate('/home');
     } catch (err: any) {

@@ -6,6 +6,7 @@ import ProductDetailsModal from '../Modals/ProductDetailsModal';
 import ProductFilters from '../Filters/ProductFilters';
 import { FaFileCsv } from 'react-icons/fa';
 import 'animate.css';
+import { updateProduct, deleteProduct } from '../../services/productService';
 
 interface Product {
 	id: string;
@@ -100,45 +101,30 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 		if (!selectedProduct) return;
 		setLoading(true);
 		setFeedback(null);
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('token') || '';
 		try {
-			const response = await fetch(`http://localhost:8080/api/produtos/${selectedProduct.id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					code: selectedProduct.code,
-					description: editDescription,
-					price: parseFloat(price.replace(',', '.')),
-					departmentId,
-				}),
+			const updated = await updateProduct(token, {
+				...selectedProduct,
+				description: editDescription,
+				price: parseFloat(price.replace(',', '.')),
+				departmentId,
 			});
-			if (!response.ok) {
-				setFeedback({ type: 'danger', message: 'Erro ao salvar produto' });
-				setToastType('error');
-				setShowToast(true);
-				setLoading(false);
-				return;
-			}
-			const updatedProduct = await response.json();
 			setFilteredData((prev) =>
 				prev.map((prod) =>
 					prod.id === selectedProduct.id
-						? { ...prod, ...updatedProduct }
+						? { ...prod, ...updated }
 						: prod
 				)
 			);
-				setFeedback({ type: 'success', message: 'Produto atualizado com sucesso!' });
-				setToastType('success');
-				setShowToast(true);
-				setLoading(false);
-				setTimeout(() => {
-					setShowModal(false);
-					setEditMode(false);
-					setSelectedProduct(null);
-				}, 1200);
+			setFeedback({ type: 'success', message: 'Produto atualizado com sucesso!' });
+			setToastType('success');
+			setShowToast(true);
+			setLoading(false);
+			setTimeout(() => {
+				setShowModal(false);
+				setEditMode(false);
+				setSelectedProduct(null);
+			}, 1200);
 		} catch (err) {
 			setFeedback({ type: 'danger', message: 'Erro ao salvar produto' });
 			setToastType('error');
@@ -201,20 +187,9 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 		setDeleting(true);
 		setLoading(true);
 		setFeedback(null);
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('token') || '';
 		try {
-			const response = await fetch(`http://localhost:8080/api/produtos/${selectedProduct.id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			if (!response.ok) {
-				setFeedback({ type: 'danger', message: 'Erro ao excluir produto' });
-				setLoading(false);
-				setDeleting(false);
-				return;
-			}
+			await deleteProduct(token, selectedProduct.id);
 			setFilteredData((prev) => prev.filter((prod) => prod.id !== selectedProduct.id));
 			setFeedback({ type: 'success', message: 'Produto excluído com sucesso!' });
 			setLoading(false);

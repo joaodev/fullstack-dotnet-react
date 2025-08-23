@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { updateUser, deleteUser } from '../../services/userService';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import FormFeedback from '../Forms/FormFeedback';
@@ -66,24 +67,16 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 		if (!editName || !editEmail) return;
 		setLoading(true);
 		setFeedback(null);
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('token') || '';
 		try {
-			const response = await fetch(`http://localhost:8080/api/usuarios/${selectedUser.id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({ name: editName, email: editEmail }),
+			const updated = await updateUser(token, {
+				...selectedUser,
+				name: editName,
+				email: editEmail,
 			});
-			if (!response.ok) {
-				setFeedback({ type: 'danger', message: 'Erro ao editar usuário' });
-				setLoading(false);
-				return;
-			}
 			setFilteredData((prev) =>
 				prev.map((user) =>
-					user.id === selectedUser.id ? { ...user, name: editName, email: editEmail } : user
+					user.id === selectedUser.id ? { ...user, ...updated } : user
 				)
 			);
 			setFeedback({ type: 'success', message: 'Usuário editado com sucesso!' });
@@ -105,19 +98,9 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 		if (!window.confirm('Tem certeza que deseja excluir este usuário?')) return;
 		setLoading(true);
 		setFeedback(null);
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('token') || '';
 		try {
-			const response = await fetch(`http://localhost:8080/api/usuarios/${selectedUser.id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			if (!response.ok) {
-				setFeedback({ type: 'danger', message: 'Erro ao excluir usuário' });
-				setLoading(false);
-				return;
-			}
+			await deleteUser(token, selectedUser.id);
 			setFilteredData((prev) => prev.filter((user) => user.id !== selectedUser.id));
 			setFeedback({ type: 'success', message: 'Usuário excluído com sucesso!' });
 			setLoading(false);

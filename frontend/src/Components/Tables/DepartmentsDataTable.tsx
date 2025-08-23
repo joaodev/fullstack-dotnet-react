@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { updateDepartment } from '../../services/departmentService';
+import { deleteDepartment } from '../../services/departmentService';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import DepartmentDetailsModal from '../Modals/DepartmentDetailsModal';
 import DepartmentEditModal from '../Modals/DepartmentEditModal';
@@ -54,20 +56,9 @@ const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => 
 		setDeleting(true);
 		setLoading(true);
 		setFeedback(null);
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem('token') || '';
 		try {
-			const response = await fetch(`http://localhost:8080/api/departamentos/${selectedDepartment.id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			if (!response.ok) {
-				setFeedback({ type: 'danger', message: 'Erro ao excluir departamento' });
-				setLoading(false);
-				setDeleting(false);
-				return;
-			}
+			await deleteDepartment(token, selectedDepartment.id);
 			setFilteredData((prev) => prev.filter((dep) => dep.id !== selectedDepartment.id));
 			setFeedback({ type: 'success', message: 'Departamento excluído com sucesso!' });
 			setLoading(false);
@@ -130,44 +121,32 @@ const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => 
 		setFeedback(null);
 	};
 
-  const handleEditSave = async () => {
-    if (!selectedDepartment) return;
-    if (!editName || editName === selectedDepartment.name) return;
-    setLoading(true);
-    setFeedback(null);
-    const token = localStorage.getItem('token');
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/departamentos/${selectedDepartment.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name: editName }),
-        },
-      );
-      if (!response.ok) {
-        setFeedback({ type: 'danger', message: 'Erro ao editar departamento' });
-        setLoading(false);
-        return;
-      }
-      setFilteredData((prev) =>
-        prev.map((dep) => (dep.id === selectedDepartment.id ? { ...dep, name: editName } : dep)),
-      );
-      setFeedback({ type: 'success', message: 'Departamento editado com sucesso!' });
-      setLoading(false);
-      setTimeout(() => {
-        setShowModal(false);
-        setSelectedDepartment(null);
-        setFeedback(null);
-      }, 3000);
-    } catch (err) {
-      setFeedback({ type: 'danger', message: 'Erro ao editar departamento' });
-      setLoading(false);
-    }
-  };
+	const handleEditSave = async () => {
+		if (!selectedDepartment) return;
+		if (!editName || editName === selectedDepartment.name) return;
+		setLoading(true);
+		setFeedback(null);
+		const token = localStorage.getItem('token') || '';
+		try {
+			const updated = await updateDepartment(token, {
+				...selectedDepartment,
+				name: editName,
+			});
+			setFilteredData((prev) =>
+				prev.map((dep) => (dep.id === selectedDepartment.id ? { ...dep, ...updated } : dep)),
+			);
+			setFeedback({ type: 'success', message: 'Departamento editado com sucesso!' });
+			setLoading(false);
+			setTimeout(() => {
+				setShowModal(false);
+				setSelectedDepartment(null);
+				setFeedback(null);
+			}, 3000);
+		} catch (err) {
+			setFeedback({ type: 'danger', message: 'Erro ao editar departamento' });
+			setLoading(false);
+		}
+	};
 
 			return (
 				<>
