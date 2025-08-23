@@ -3,7 +3,18 @@ export interface Department {
   name: string;
 }
 
+
 const API_URL = 'http://localhost:8080/api/departamentos';
+const API_TOTAL_URL = 'http://localhost:8080/api/departamentos/total';
+
+export async function fetchDepartmentsTotal(token: string): Promise<number> {
+  const response = await fetch(API_TOTAL_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error('Erro ao buscar total de departamentos');
+  const data = await response.json();
+  return typeof data === 'number' ? data : data.total ?? 0;
+}
 
 
 export async function fetchDepartments(token: string): Promise<Department[]> {

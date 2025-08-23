@@ -5,7 +5,18 @@ export interface User {
   password?: string;
 }
 
+
 const API_URL = 'http://localhost:8080/api/usuarios';
+const API_TOTAL_URL = 'http://localhost:8080/api/usuarios/total';
+
+export async function fetchUsersTotal(token: string): Promise<number> {
+  const response = await fetch(API_TOTAL_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error('Erro ao buscar total de usuários');
+  const data = await response.json();
+  return typeof data === 'number' ? data : data.total ?? 0;
+}
 
 
 export async function fetchUsers(token: string): Promise<User[]> {
