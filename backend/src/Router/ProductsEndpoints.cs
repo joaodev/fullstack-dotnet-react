@@ -67,6 +67,15 @@ namespace ProductsDotnetApi.Router
                     return Results.Json(ativos);
             });
 
+                // GET /produtos/total
+                router.MapGet("/total", async ([FromServices] ProductRepository repository) =>
+                {
+                    var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                    var total = await repository.TotalAsync();
+                    logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos/total] - Total de produtos ativos: {Total}", DateTime.UtcNow, total);
+                    return Results.Json(new { total });
+                });
+
             // GET /produtos/{id}
             router.MapGet("/{id}", async ([FromServices] ProductRepository repository, string id) =>
             {

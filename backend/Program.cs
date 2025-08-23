@@ -46,7 +46,12 @@ public class Program
 
         // EF Core para PostgreSQL (somente se não estiver em ambiente de teste)
         var isTestEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Test";
-        if (!isTestEnv)
+        if (isTestEnv)
+        {
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseInMemoryDatabase("TestDb"));
+        }
+        else
         {
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

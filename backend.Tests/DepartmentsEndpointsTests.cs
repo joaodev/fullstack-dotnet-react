@@ -13,9 +13,11 @@ using System.Threading.Tasks;
 public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> factory;
 
     public DepartmentsEndpointsTests(WebApplicationFactory<Program> factory)
         {
+            this.factory = factory;
             var customFactory = factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
@@ -44,6 +46,26 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
         var response = await _client.GetAsync("/departamentos");
         response.EnsureSuccessStatusCode();
     }
+
+        [Fact]
+        public async Task GetDepartmentsTotal_ReturnsSuccessAndCorrectCount()
+        {
+        // Limpa o banco antes do teste
+        var db = GetDbContext();
+        db.Departments.RemoveRange(db.Departments);
+        db.SaveChanges();
+        // Cria 2 departamentos ativos
+        var dep1 = new { name = "Departamento 1" };
+        var dep2 = new { name = "Departamento 2" };
+        await _client.PostAsJsonAsync("/departamentos", dep1);
+        await _client.PostAsJsonAsync("/departamentos", dep2);
+            var response = await _client.GetAsync("/departamentos/total");
+            response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var total = doc.RootElement.GetProperty("total").GetInt32();
+        Assert.Equal(2, total);
+        }
 
     [Fact]
     public async Task CreateDepartment_ReturnsCreated()
@@ -96,5 +118,12 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
         );
         var token = new JwtSecurityToken(header, payload);
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private ProductsDotnetApi.Data.AppDbContext GetDbContext()
+    {
+        var scopeFactory = factory.Services.GetService(typeof(IServiceScopeFactory)) as IServiceScopeFactory;
+        var scope = scopeFactory.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<ProductsDotnetApi.Data.AppDbContext>();
     }
 }

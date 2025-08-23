@@ -10,7 +10,8 @@ namespace Backend.Factories
             {
                 Name = name,
                 Email = email,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                Status = true
             };
         }
     }

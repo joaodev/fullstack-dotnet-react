@@ -8,7 +8,8 @@ namespace Backend.Factories
         {
             return new Department
             {
-                Name = name
+                Name = name,
+                Status = true
             };
         }
     }

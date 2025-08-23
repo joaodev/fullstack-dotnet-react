@@ -35,6 +35,11 @@ namespace ProductsDotnetApi.Repositories
             return await _context.Departments.ToListAsync();
         }
 
+            public async Task<int> TotalAsync()
+            {
+                return await _context.Departments.CountAsync(d => d.Status);
+            }
+
         private readonly IDepartmentFactory _departmentFactory = new DepartmentFactory();
 
         public async Task AddAsync(string name)

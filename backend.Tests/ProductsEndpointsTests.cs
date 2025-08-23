@@ -15,10 +15,12 @@ namespace Backend.Tests
 {
     public class ProductsEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
     {
-        private readonly HttpClient _client;
+    private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> factory;
 
         public ProductsEndpointsTests(WebApplicationFactory<Program> factory)
         {
+            this.factory = factory;
             var customFactory = factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
@@ -47,6 +49,33 @@ namespace Backend.Tests
             var response = await _client.GetAsync("/produtos");
             response.EnsureSuccessStatusCode();
         }
+
+            [Fact]
+            public async Task GetProductsTotal_ReturnsSuccessAndCorrectCount()
+            {
+                // Limpa o banco antes do teste
+                var db = GetDbContext();
+                db.Products.RemoveRange(db.Products);
+                db.Departments.RemoveRange(db.Departments);
+                db.SaveChanges();
+                // Cria departamento necessário
+                var dep = new { name = "Departamento Teste" };
+                var depResp = await _client.PostAsJsonAsync("/departamentos", dep);
+                var depJson = await depResp.Content.ReadAsStringAsync();
+                using var depDoc = System.Text.Json.JsonDocument.Parse(depJson);
+                var depId = depDoc.RootElement.GetProperty("id").GetInt32();
+                // Cria 2 produtos ativos
+                var product1 = new { code = "CODE1", description = "Produto 1", departmentId = depId, price = 10.0m, status = true };
+                var product2 = new { code = "CODE2", description = "Produto 2", departmentId = depId, price = 20.0m, status = true };
+                await _client.PostAsJsonAsync("/produtos", product1);
+                await _client.PostAsJsonAsync("/produtos", product2);
+                var response = await _client.GetAsync("/produtos/total");
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                var total = doc.RootElement.GetProperty("total").GetInt32();
+                Assert.Equal(2, total);
+            }
 
         [Fact]
         public async Task CreateProduct_ReturnsCreated()
@@ -116,6 +145,13 @@ namespace Backend.Tests
             );
             var token = new JwtSecurityToken(header, payload);
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private ProductsDotnetApi.Data.AppDbContext GetDbContext()
+        {
+            var scopeFactory = factory.Services.GetService(typeof(IServiceScopeFactory)) as IServiceScopeFactory;
+            var scope = scopeFactory.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<ProductsDotnetApi.Data.AppDbContext>();
         }
 
         public class ProductResponse

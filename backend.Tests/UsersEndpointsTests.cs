@@ -15,10 +15,12 @@ using System.Linq;
 public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> factory;
 
     public UsersEndpointsTests(WebApplicationFactory<Program> factory)
     {
-        var customFactory = factory.WithWebHostBuilder(builder =>
+    this.factory = factory;
+    var customFactory = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
             {
@@ -49,6 +51,28 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await _client.GetAsync("/usuarios");
         response.EnsureSuccessStatusCode();
     }
+
+        [Fact]
+        public async Task GetUsersTotal_ReturnsSuccessAndCorrectCount()
+        {
+        // Limpa o banco antes do teste
+        var db = GetDbContext();
+        db.Users.RemoveRange(db.Users);
+        db.SaveChanges();
+        // Cria 2 usuários ativos
+        var email1 = UniqueEmail("total1");
+        var email2 = UniqueEmail("total2");
+        var user1 = new { name = "Usuário 1", email = email1, password = "123456" };
+        var user2 = new { name = "Usuário 2", email = email2, password = "123456" };
+        await _client.PostAsJsonAsync("/usuarios", user1);
+        await _client.PostAsJsonAsync("/usuarios", user2);
+            var response = await _client.GetAsync("/usuarios/total");
+            response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var total = doc.RootElement.GetProperty("total").GetInt32();
+        Assert.Equal(2, total);
+        }
 
     [Fact]
     public async Task CreateUser_Valid_ReturnsCreated()
@@ -137,6 +161,13 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         );
         var token = new JwtSecurityToken(header, payload);
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private ProductsDotnetApi.Data.AppDbContext GetDbContext()
+    {
+        var scopeFactory = factory.Services.GetService(typeof(IServiceScopeFactory)) as IServiceScopeFactory;
+        var scope = scopeFactory.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<ProductsDotnetApi.Data.AppDbContext>();
     }
 
     public class UserResponse

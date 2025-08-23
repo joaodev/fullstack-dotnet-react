@@ -28,6 +28,15 @@ namespace ProductsDotnetApi.Router
                 logger.LogInformation("[SUCESSO] [{Time}] [GET /departamentos] - {Count} departamentos ativos retornados", DateTime.UtcNow, ativos.Count);
                 return Results.Json(ativos);
             });
+
+                // GET /departamentos/total
+                router.MapGet("/total", async ([FromServices] DepartmentRepository repository) =>
+                {
+                    var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
+                    var total = await repository.TotalAsync();
+                    logger.LogInformation("[SUCESSO] [{Time}] [GET /departamentos/total] - Total de departamentos ativos: {Total}", DateTime.UtcNow, total);
+                    return Results.Json(new { total });
+                });
             router.MapPut("/{id}", async ([FromServices] DepartmentRepository repository, int id, [FromBody] DepartmentInput input) =>
             {
                 var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();

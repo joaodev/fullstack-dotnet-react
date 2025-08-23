@@ -24,6 +24,11 @@ namespace ProductsDotnetApi.Repositories
             return await _context.Products.Where(p => p.Status).ToListAsync();
         }
 
+            public async Task<int> TotalAsync()
+            {
+                return await _context.Products.CountAsync(p => p.Status);
+            }
+
         public async Task<Product?> GetByIdAsync(Guid id)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.Status);

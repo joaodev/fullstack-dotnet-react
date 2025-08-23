@@ -40,6 +40,11 @@ namespace ProductsDotnetApi.Repositories
             return await _context.Users.ToListAsync();
         }
 
+            public async Task<int> TotalAsync()
+            {
+                return await _context.Users.CountAsync(u => u.Status);
+            }
+
         public async Task<User?> GetByIdAsync(Guid id)
         {
             return await _context.Users.FindAsync(id);
