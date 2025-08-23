@@ -103,26 +103,10 @@ function Departments() {
 					setForm({ name: '' });
 				}}
 			/>
-			<Navbar bg="dark" variant="dark" fixed="top" expand="lg">
-				<Container>
-					<Navbar.Brand href="/home">Controle de Produtos</Navbar.Brand>
-					<Navbar.Toggle aria-controls="basic-navbar-nav" />
-					<Navbar.Collapse id="basic-navbar-nav">
-						<Nav className="me-auto">
-							<Nav.Link href="/usuarios">Usuários</Nav.Link>
-							<Nav.Link href="/departamentos">Departamentos</Nav.Link>
-							<Nav.Link href="/produtos">Produtos</Nav.Link>
-						</Nav>
-						<Button variant="outline-light" onClick={handleLogout}>
-							Logout
-						</Button>
-					</Navbar.Collapse>
-				</Container>
-			</Navbar>
 			<Container>
-				<Row className="justify-content-md-center pt-3">
+				<Row className="justify-content-md-center">
 					<Col md={12}>
-						<Card className="mt-4 shadow-sm rounded">
+						<Card className="shadow-sm rounded">
 							<Card.Body className="p-4">
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Departamentos</h3>

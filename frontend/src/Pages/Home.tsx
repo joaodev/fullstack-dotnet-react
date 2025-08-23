@@ -47,23 +47,7 @@ function Home() {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" fixed="top" expand="lg">
-        <Container>
-          <Navbar.Brand href="/home">Sistema</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link href="/usuarios">Usuários</Nav.Link>
-              <Nav.Link href="/departamentos">Departamentos</Nav.Link>
-              <Nav.Link href="/produtos">Produtos</Nav.Link>
-            </Nav>
-            <Button variant="outline-light" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-      <Container className="mt-5 pt-5">
+      <Container>
         <Row className="g-4 justify-content-center">
           <Col xs={12} md={4}>
             <a href="/usuarios" style={{ textDecoration: 'none' }}>
