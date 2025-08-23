@@ -65,7 +65,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     <Col xs={12} md={2}>
       <Form.Label className="fw-bold" style={{ visibility: 'hidden' }}>Exportar</Form.Label>
       <Button
-        variant="success"
+        variant="primary"
         className="w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
         onClick={onExportCSV}
       >

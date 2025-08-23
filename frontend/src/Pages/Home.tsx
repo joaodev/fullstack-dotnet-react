@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Navbar, Nav, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { FaUsers, FaBuilding, FaBoxOpen } from 'react-icons/fa';
 import { fetchUsersTotal } from '../services/userService';
 import { fetchDepartmentsTotal } from '../services/departmentService';

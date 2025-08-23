@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Navbar, Nav, Card, Row, Col } from 'react-bootstrap';
+import { Container, Button, Card, Row, Col } from 'react-bootstrap';
 import FeedbackToast from '../Components/Toasts/FeedbackToast';
 import DepartmentsDataTable, { Department } from '../Components/Tables/DepartmentsDataTable';
 import DepartmentModal from '../Components/Modals/DepartmentModal';
@@ -111,7 +111,7 @@ function Departments() {
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Departamentos</h3>
 									<Button
-										variant="dark"
+										variant="primary"
 										onClick={handleOpenModal}
 										style={{ minWidth: 180, fontWeight: 500 }}
 									>

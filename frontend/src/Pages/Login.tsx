@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
 import LoginForm from '../Components/Forms/LoginForm';
 import { login } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -30,25 +30,31 @@ function Login() {
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <Card>
-            <Card.Body>
-              <Card.Title>Login</Card.Title>
-              <LoginForm
-                email={email}
-                password={password}
-                error={error}
-                onEmailChange={(e) => setEmail(e.target.value)}
-                onPasswordChange={(e) => setPassword(e.target.value)}
-                onSubmit={handleSubmit}
-              />
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+    <div className="login-bg">
+      <div className="login-card">
+        <div className="login-title">Entrar no Sistema</div>
+        {error && <div className="login-error">{error}</div>}
+        <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
+          <input
+            type="email"
+            className="form-control"
+            placeholder="E-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Senha"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="btn btn-primary w-100 mt-2">Entrar</button>
+        </form>
+      </div>
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Navbar, Nav, Card, Row, Col } from 'react-bootstrap';
+import { Container, Button, Card, Row, Col } from 'react-bootstrap';
 import UsersDataTable from '../Components/Tables/UsersDataTable';
 import UserModal from '../Components/Modals/UserModal';
 import { useNavigate } from 'react-router-dom';
@@ -92,7 +92,7 @@ function Users() {
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0 fw-bold">Usuários</h3>
 									<Button
-										variant="dark"
+										variant="primary"
 										onClick={handleOpenModal}
 										style={{ minWidth: 180, fontWeight: 500 }}
 									>

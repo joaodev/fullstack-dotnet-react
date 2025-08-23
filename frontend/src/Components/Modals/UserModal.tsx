@@ -70,7 +70,7 @@ const UserModal: React.FC<UserModalProps> = ({
           </div>
         )}
         <div className="d-flex justify-content-end gap-2">
-          <Button variant="secondary" onClick={onHide} disabled={loading}>
+          <Button variant="light" onClick={onHide} disabled={loading}>
             Cancelar
           </Button>
           <Button variant="success" type="submit" disabled={loading}>

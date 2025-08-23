@@ -55,7 +55,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ code, description, price, dep
       </select>
     </div>
     <div className="modal-footer">
-      <button type="button" className="btn btn-secondary" onClick={onCancel}>
+      <button type="button" className="btn btn-light" onClick={onCancel}>
         Cancelar
       </button>
       <button type="submit" className="btn btn-primary">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Navbar, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import ProductsDataTable from '../Components/Tables/ProductsDataTable';
 import ProductForm from '../Components/Forms/ProductForm';
 import { useNavigate } from 'react-router-dom';
@@ -153,7 +153,7 @@ const Products: React.FC = () => {
 								<div className="d-flex justify-content-between align-items-center mb-3">
 									<h3 className="mb-0">Produtos</h3>
 									<Button
-										variant="dark"
+										variant="primary"
 										onClick={handleOpenModal}
 										style={{ minWidth: 180, fontWeight: 500 }}
 									>

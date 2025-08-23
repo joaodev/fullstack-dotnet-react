@@ -22,7 +22,7 @@ const DepartmentFilters: React.FC<DepartmentFiltersProps> = ({ filterText, onFil
     </Col>
     <Col xs={12} md={2}>
       <Button
-        variant="dark"
+        variant="primary"
         className="w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
         onClick={onExportCSV}
       >
