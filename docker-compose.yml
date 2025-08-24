@@ -7,6 +7,9 @@ services:
       - backend
     volumes:
       - ./frontend/.env:/app/.env
+    environment:
+      VITE_API_URL: "${VITE_API_URL}"
+      VITE_ENV: "${VITE_ENV}"
   nginx:
     image: nginx:alpine
     ports:
@@ -20,9 +23,9 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: appdb
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
     ports:
       - "5432:5432"
     volumes:
@@ -33,8 +36,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS}"
   backend:
     build:
       context: ./backend
@@ -46,14 +49,17 @@ services:
       - ./backend/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
       - ./backend/.env:/app/.env
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_HTTP_PORTS: 5000
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=appdb;Username=postgres;Password=postgres
-      RabbitMQ__HostName: rabbitmq
-      RabbitMQ__UserName: user
-      RabbitMQ__Password: password
-      DB_HOST: postgres
-      DB_PORT: 5432
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: "5000"
+      ConnectionStrings__DefaultConnection: "${CONNECTION_STRING}"
+      RabbitMQ__HostName: "rabbitmq"
+      RabbitMQ__UserName: "${RABBITMQ_DEFAULT_USER}"
+      RabbitMQ__Password: "${RABBITMQ_DEFAULT_PASS}"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS}"
+      JWT_SECRET: "${JWT_SECRET}"
+      DB_CONNECTION_STRING: "${CONNECTION_STRING}"
     depends_on:
       - postgres
       - rabbitmq
