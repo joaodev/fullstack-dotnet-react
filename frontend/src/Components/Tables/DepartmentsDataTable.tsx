@@ -50,31 +50,35 @@ const DepartmentsDataTable: React.FC<DepartmentsDataTableProps> = ({ data }) => 
 
 	// Função para deletar departamento
 	const [deleting, setDeleting] = useState(false);
-	const handleDelete = async () => {
-		if (!selectedDepartment) return;
-		if (!window.confirm('Tem certeza que deseja excluir este departamento?')) return;
-		setDeleting(true);
-		setLoading(true);
-		setFeedback(null);
-		const token = localStorage.getItem('token') || '';
-		try {
-			await deleteDepartment(token, selectedDepartment.id);
-			setFilteredData((prev) => prev.filter((dep) => dep.id !== selectedDepartment.id));
-			setFeedback({ type: 'success', message: 'Departamento excluído com sucesso!' });
-			setLoading(false);
-			setDeleting(false);
-			// Fechar modal após mostrar feedback
-			setTimeout(() => {
-				setShowModal(false);
-				setSelectedDepartment(null);
-				setFeedback(null);
-			}, 1500);
-		} catch (err) {
-			setFeedback({ type: 'danger', message: 'Erro ao excluir departamento' });
-			setLoading(false);
-			setDeleting(false);
-		}
-	};
+		const handleDelete = async () => {
+			if (!selectedDepartment) return;
+			setDeleting(true); // Ativa imediatamente para ocultar botões
+			setLoading(true);
+			setFeedback(null);
+			if (!window.confirm('Tem certeza que deseja excluir este departamento?')) {
+				setDeleting(false);
+				setLoading(false);
+				return;
+			}
+			const token = localStorage.getItem('token') || '';
+			try {
+				await deleteDepartment(token, selectedDepartment.id);
+				setFilteredData((prev) => prev.filter((dep) => dep.id !== selectedDepartment.id));
+				setFeedback({ type: 'success', message: 'Departamento excluído com sucesso!' });
+				setLoading(false);
+				// Mantém "Excluindo..." até fechar o modal
+				setTimeout(() => {
+					setDeleting(false);
+					setShowModal(false);
+					setSelectedDepartment(null);
+					setFeedback(null);
+				}, 1500);
+			} catch (err) {
+				setFeedback({ type: 'danger', message: 'Erro ao excluir departamento' });
+				setLoading(false);
+				setDeleting(false);
+			}
+		};
 	const [filterText, setFilterText] = useState('');
 	const [filteredData, setFilteredData] = useState<Department[]>(data);
 	const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);

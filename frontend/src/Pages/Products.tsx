@@ -39,6 +39,7 @@ const Products: React.FC = () => {
 					setError(data.error);
 				} else if (data) {
 					setProdutos(data);
+					console.log('Produtos recebidos:', data);
 				}
 			});
 	}, [navigate]);

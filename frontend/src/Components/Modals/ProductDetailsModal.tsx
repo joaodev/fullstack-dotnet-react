@@ -8,6 +8,7 @@ interface ProductDetailsModalProps {
     code: string;
     description: string;
     departmentId: string;
+    departmentTitle: string;
     price: number;
   } | null;
   loading?: boolean;
@@ -39,7 +40,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             <strong>Nome:</strong> {product.description}
           </div>
           <div className="mb-2">
-            <strong>Departamento:</strong> {product.departmentId}
+            <strong>Departamento:</strong> {product.departmentTitle}
           </div>
           <div className="mb-2">
             <strong>Preço:</strong>{' '}

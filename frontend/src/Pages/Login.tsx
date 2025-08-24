@@ -23,6 +23,38 @@ function Login() {
     try {
       const data = await login({ email, password });
       localStorage.setItem('token', data.token);
+      // Limpa dados antigos e salva dados do usuário logado
+      localStorage.removeItem('userData');
+      let userData = data.user;
+      // Se não veio user no payload, decodifica do JWT
+      if (!userData && data.token) {
+        try {
+          // Decodifica JWT payload para UTF-8
+          const base64 = data.token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join('')
+          );
+          const payload = JSON.parse(jsonPayload);
+          // Busca o nome em todos os campos comuns
+          const name = payload.name
+            || payload.unique_name
+            || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]
+            || payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/name"];
+          userData = {
+            id: payload.sub || payload.id,
+            name,
+            email: payload.email || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/emailaddress"],
+          };
+        } catch {}
+      }
+      if (userData) {
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
       navigate('/home');
     } catch (err: any) {
       setError(err.message);

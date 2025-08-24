@@ -4,6 +4,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FiLogOut, FiSettings, FiUserCheck } from 'react-icons/fi';
 
 const AppNavbar: React.FC = () => {
+  // Busca nome do usuário logado
+  let userName = 'Usuário';
+  const userDataStr = localStorage.getItem('userData');
+  if (userDataStr) {
+    try {
+      const userData = JSON.parse(userDataStr);
+      if (userData?.name) userName = userData.name;
+    } catch {}
+  } else {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        // Decodifica JWT (assume formato base64)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload?.name) userName = payload.name;
+      } catch {}
+    }
+  }
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,7 +51,7 @@ const AppNavbar: React.FC = () => {
             <span className="me-1">
               <FiUserCheck size={16} style={{ position: 'relative', top: '-2px' }} />
             </span>
-              João Augusto
+            {userName}
           </Button>
           <Button className='btn-sm border-0' variant="outline-light" onClick={handleLogout}>
             <span className="me-1">

@@ -21,6 +21,10 @@ function Users() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setAlert(null);
+		if (!form.password || form.password.trim().length < 6) {
+			setAlert({ type: 'danger', message: 'A senha é obrigatória e deve ter pelo menos 6 caracteres.' });
+			return;
+		}
 		const token = localStorage.getItem('token');
 		try {
 			const response = await fetch('http://localhost:8080/api/usuarios', {
@@ -29,7 +33,7 @@ function Users() {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+				body: JSON.stringify({ name: form.name, email: form.email, passwordHash: form.password }),
 			});
 			const result = await response.json();
 			if (!response.ok) {

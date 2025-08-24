@@ -10,23 +10,23 @@ interface UserFiltersProps {
 
 const UserFilters: React.FC<UserFiltersProps> = ({ filterText, onFilterTextChange, onExportCSV }) => (
   <Row className="g-3 mb-3 align-items-end">
-    <Col xs={12} md={3}>
-      <Form.Label className="fw-bold">Buscar</Form.Label>
+    <Col xs={12} md={10}>
       <Form.Control
         type="text"
-        placeholder="Nome, email ou ID..."
+        placeholder="Pesquise por Nome ou email..."
         value={filterText}
         onChange={onFilterTextChange}
         className="shadow-sm"
       />
     </Col>
-    <Col xs={12} md={2}>
+    <Col xs={12} md={2} className="d-flex align-items-end">
       <Button
         variant="primary"
         className="w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm"
         onClick={onExportCSV}
+        style={{ height: '40px' }}
       >
-        <FaFileCsv /> Exportar CSV
+        <FaFileCsv /> Exportar
       </Button>
     </Col>
   </Row>

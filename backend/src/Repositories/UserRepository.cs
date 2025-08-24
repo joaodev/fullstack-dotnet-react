@@ -67,7 +67,7 @@ namespace ProductsDotnetApi.Repositories
 
         public async Task UpdateAsync(User user)
         {
-            user.PasswordHash = PasswordHelper.HashPassword(user.PasswordHash);
+            // O hash já é gerado no endpoint, não re-hash aqui
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }

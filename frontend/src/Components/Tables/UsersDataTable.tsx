@@ -19,9 +19,8 @@ interface UsersDataTableProps {
 }
 
 const columns: TableColumn<User>[] = [
-	{ name: 'ID', selector: (row) => row.id, sortable: true },
-	{ name: 'Nome', selector: (row) => row.name, sortable: true },
-	{ name: 'Email', selector: (row) => row.email, sortable: true },
+  { name: 'Nome', selector: (row) => row.name, sortable: true },
+  { name: 'Email', selector: (row) => row.email, sortable: true },
 ];
 
 const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
@@ -40,8 +39,7 @@ const UsersDataTable: React.FC<UsersDataTableProps> = ({ data }) => {
 			data.filter(
 				(item: User) =>
 					item.name.toLowerCase().includes(filterText.toLowerCase()) ||
-					item.email.toLowerCase().includes(filterText.toLowerCase()) ||
-					item.id.toLowerCase().includes(filterText.toLowerCase())
+					item.email.toLowerCase().includes(filterText.toLowerCase())
 			)
 		);
 	}, [filterText, data]);

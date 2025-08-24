@@ -57,7 +57,14 @@ export async function updateUser(token: string, user: User): Promise<User> {
     },
     body: JSON.stringify(user),
   });
-  if (!response.ok) throw new Error('Erro ao atualizar usuário');
+  if (!response.ok) {
+    let errorMsg = 'Erro ao atualizar usuário';
+    try {
+      const data = await response.json();
+      if (data && data.error) errorMsg = data.error;
+    } catch {}
+    throw new Error(errorMsg);
+  }
   return response.json();
 }
 

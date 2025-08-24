@@ -14,6 +14,7 @@ interface Product {
 	description: string;
 	price: number;
 	departmentId?: string;
+	departmentTitle?: string;
 }
 
 interface ProductsDataTableProps {
@@ -35,7 +36,7 @@ const columns: TableColumn<Product>[] = [
 	},
 	{
 		name: 'Departamento',
-		selector: (row) => row.departmentId || '',
+		selector: (row) => row.departmentTitle || '',
 		sortable: true,
 	},
 	{
@@ -46,23 +47,23 @@ const columns: TableColumn<Product>[] = [
 ];
 
 const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments, onOpenModal }) => {
-	// State declarations must come before useEffect
 	const [filterText, setFilterText] = useState('');
 	const [minPrice, setMinPrice] = useState('');
 	const [maxPrice, setMaxPrice] = useState('');
-	const [departmentFilter, setDepartmentFilter] = useState('');
+	// Removido filtro de departamento
 	const [showToast, setShowToast] = useState(false);
 	const [toastType, setToastType] = useState<'success' | 'error'>('success');
 	const [feedback, setFeedback] = useState<{ type: string; message: string } | null>(null);
 	const [editMode, setEditMode] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+	const [filteredData, setFilteredData] = useState<Product[]>(data);
 	const [editDescription, setEditDescription] = useState('');
 	const [price, setPrice] = useState('');
 	const [departmentId, setDepartmentId] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [deleting, setDeleting] = useState(false);
-	const [filteredData, setFilteredData] = useState<Product[]>(data);
+
 
 	useEffect(() => {
 		let filtered = data;
@@ -86,11 +87,12 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 				filtered = filtered.filter((item) => item.price <= max);
 			}
 		}
-		if (departmentFilter) {
-			filtered = filtered.filter((item) => item.departmentId === departmentFilter);
-		}
+		// Filtro de departamento removido
 		setFilteredData(filtered);
-	}, [filterText, minPrice, maxPrice, departmentFilter, data]);
+	// console.log('Filtro departamento removido');
+		console.log('Produtos:', data);
+		console.log('Produtos filtrados:', filtered);
+	}, [filterText, minPrice, maxPrice, data]);
 
 	const handleRowClicked = (row: Product) => {
 		setSelectedProduct(row);
@@ -167,11 +169,9 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 				filtered = filtered.filter((item) => item.price <= max);
 			}
 		}
-		if (departmentFilter) {
-			filtered = filtered.filter((item) => item.departmentId === departmentFilter);
-		}
+		// Filtro de departamento removido
 		setFilteredData(filtered);
-	}, [filterText, minPrice, maxPrice, departmentFilter, data]);
+	}, [filterText, minPrice, maxPrice, data]);
 
 	const handleEditCancel = () => {
 		setEditMode(false);
@@ -268,13 +268,10 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 					filterText={filterText}
 					minPrice={minPrice}
 					maxPrice={maxPrice}
-					departmentFilter={departmentFilter}
 					onFilterTextChange={(e) => setFilterText(e.target.value)}
 					onMinPriceChange={(e) => setMinPrice(e.target.value)}
 					onMaxPriceChange={(e) => setMaxPrice(e.target.value)}
-					onDepartmentChange={(e) => setDepartmentFilter(e.target.value)}
 					onExportCSV={exportToCSV}
-					departments={departments.length ? departments : Array.from(new Set(data.map((item: Product) => item.departmentId).filter((n): n is string => !!n))).map((id: string) => ({ id, name: id }))}
 				/>
 			<div className="table-responsive rounded-3 border shadow-lg overflow-auto">
 				<DataTable
@@ -319,6 +316,7 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 							? {
 									...selectedProduct,
 									departmentId: selectedProduct.departmentId || '',
+									departmentTitle: selectedProduct.departmentTitle || '',
 							  }
 							: null
 					}

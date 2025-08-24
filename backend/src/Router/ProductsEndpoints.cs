@@ -25,6 +25,7 @@ namespace ProductsDotnetApi.Router
             public string? Code { get; set; }
             public string? Description { get; set; }
             public int DepartmentId { get; set; }
+            public string? DepartmentTitle { get; set; }
             public decimal Price { get; set; }
         }
 
@@ -51,20 +52,21 @@ namespace ProductsDotnetApi.Router
             var router = app.MapGroup("/produtos").RequireAuthorization();
 
             // GET /produtos
-            router.MapGet("/", async ([FromServices] ProductRepository repository) =>
-            {
+            router.MapGet("/", async ([FromServices] ProductRepository repository, [FromServices] AppDbContext dbContext) => {
                 var products = await repository.GetAllAsync();
                 var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var departamentos = dbContext.Departments.ToDictionary(d => d.Id, d => d.Name);
                 var ativos = products.Where(p => p.Status)
                     .Select(p => new ProductResponse {
                         Id = p.Id,
                         Code = p.Code,
                         Description = p.Description,
                         DepartmentId = p.DepartmentId,
+                        DepartmentTitle = departamentos.ContainsKey(p.DepartmentId) ? departamentos[p.DepartmentId] : null,
                         Price = p.Price
                     }).ToList();
                 logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos] - {Count} produtos ativos retornados", DateTime.UtcNow, ativos.Count);
-                    return Results.Json(ativos);
+                return Results.Json(ativos);
             });
 
                 // GET /produtos/total
@@ -77,24 +79,25 @@ namespace ProductsDotnetApi.Router
                 });
 
             // GET /produtos/{id}
-            router.MapGet("/{id}", async ([FromServices] ProductRepository repository, string id) =>
-            {
+            router.MapGet("/{id}", async ([FromServices] ProductRepository repository, [FromServices] AppDbContext dbContext, string id) => {
                 if (!Guid.TryParse(id, out var guid))
-                        return Results.Json(new { error = "Id inválido. Deve ser um GUID." });
+                    return Results.Json(new { error = "Id inválido. Deve ser um GUID." });
 
                 var product = await repository.GetByIdAsync(guid);
                 if (product is null || !product.Status) return Results.NotFound();
 
                 var logger = app.Services.GetRequiredService<ILogger<ProductLog>>();
+                var departamento = await dbContext.Departments.FindAsync(product.DepartmentId);
                 var response = new ProductResponse {
                     Id = product.Id,
                     Code = product.Code,
                     Description = product.Description,
                     DepartmentId = product.DepartmentId,
+                    DepartmentTitle = departamento?.Name,
                     Price = product.Price
                 };
                 logger.LogInformation("[SUCESSO] [{Time}] [GET /produtos/{{Id}}] - Produto retornado com sucesso: {ProductId}", DateTime.UtcNow, product.Id);
-                    return Results.Json(response);
+                return Results.Json(response);
             });
 
             // POST /produtos

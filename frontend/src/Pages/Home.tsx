@@ -28,7 +28,6 @@ function Home() {
       }
     });
 
-    // Buscar totalizadores
     fetchUsersTotal(token)
       .then(setUsersTotal)
       .catch(() => setUsersTotal(0));

@@ -28,9 +28,7 @@ namespace ProductsDotnetApi.Router
             return Results.BadRequest("Nome do usuário é obrigatório.");
         if (string.IsNullOrWhiteSpace(user.Email))
             return Results.BadRequest("E-mail é obrigatório.");
-        if (string.IsNullOrWhiteSpace(user.PasswordHash))
-            return Results.BadRequest("Senha é obrigatória.");
-        // Se passou por todas as validações, retorna null (usuário válido)
+        // Senha não é obrigatória na edição
         return null;
     }
     public static RouteGroupBuilder MapUsersEndpoints(this WebApplication app)
@@ -93,11 +91,12 @@ namespace ProductsDotnetApi.Router
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - E-mail em formato inválido: {Email}", DateTime.UtcNow, input.Email);
                 return Results.Json(new { error = "E-mail em formato inválido." }, statusCode: 400);
             }
-            if (string.IsNullOrWhiteSpace(input.Password)) {
+            var senha = !string.IsNullOrWhiteSpace(input.Password) ? input.Password : input.passwordHash;
+            if (string.IsNullOrWhiteSpace(senha)) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Senha é obrigatória", DateTime.UtcNow);
                 return Results.Json(new { error = "Senha é obrigatória." }, statusCode: 400);
             }
-            if (input.Password.Length < 6) {
+            if (senha.Length < 6) {
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - Senha menor que 6 caracteres", DateTime.UtcNow);
                 return Results.Json(new { error = "Senha deve ter pelo menos 6 caracteres." }, statusCode: 400);
             }
@@ -106,7 +105,7 @@ namespace ProductsDotnetApi.Router
                 logger.LogWarning("[ERRO] [{Time}] [POST /usuarios] - E-mail já cadastrado: {Email}", DateTime.UtcNow, input.Email);
                 return Results.Json(new { error = "Já existe um usuário com o mesmo e-mail cadastrado." }, statusCode: 409);
             }
-            await repository.AddAsync(input.Name, input.Email, input.Password);
+            await repository.AddAsync(input.Name, input.Email, senha);
             var user = await repository.GetByEmailAsync(input.Email);
             if (user == null) {
                 logger.LogError("[ERRO] [{Time}] [POST /usuarios] - Erro ao buscar usuário criado: {Email}", DateTime.UtcNow, input.Email);
@@ -138,9 +137,12 @@ namespace ProductsDotnetApi.Router
                 logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - E-mail em formato inválido: {Email}", DateTime.UtcNow, id, input.Email);
                 return Results.Json(new { error = "E-mail em formato inválido." }, statusCode: 400);
             }
-            if (string.IsNullOrWhiteSpace(input.PasswordHash) || input.PasswordHash.Length < 6) {
-                logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Senha menor que 6 caracteres", DateTime.UtcNow, id);
-                return Results.Json(new { error = "Senha deve ter pelo menos 6 caracteres." }, statusCode: 400);
+            if (!string.IsNullOrWhiteSpace(input.PasswordHash)) {
+                if (input.PasswordHash.Length < 6) {
+                    logger.LogWarning("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Senha menor que 6 caracteres", DateTime.UtcNow, id);
+                    return Results.Json(new { error = "Senha deve ter pelo menos 6 caracteres." }, statusCode: 400);
+                }
+                user.PasswordHash = PasswordHelper.HashPassword(input.PasswordHash);
             }
             if (user.Email != input.Email) {
                 var existingUser = await repository.GetByEmailAsync(input.Email);
@@ -151,7 +153,6 @@ namespace ProductsDotnetApi.Router
             }
             user.Name = input.Name;
             user.Email = input.Email;
-            user.PasswordHash = PasswordHelper.HashPassword(input.PasswordHash);
             await repository.UpdateAsync(user);
             if (user == null) {
                 logger.LogError("[ERRO] [{Time}] [PUT /usuarios/{Id}] - Erro ao atualizar usuário", DateTime.UtcNow, id);
@@ -181,14 +182,15 @@ namespace ProductsDotnetApi.Router
 
     // Classe auxiliar para input
     public class UserInput {
-    public class UserResponse {
-        public Guid Id { get; set; }
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-    }
+        public class UserResponse {
+            public Guid Id { get; set; }
+            public string? Name { get; set; }
+            public string? Email { get; set; }
+        }
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
-    }
+        public string? passwordHash { get; set; }
+        }
     }
 }
