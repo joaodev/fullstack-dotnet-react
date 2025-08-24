@@ -11,11 +11,14 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        // Carrega variáveis do .env
+        DotNetEnv.Env.Load();
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "default_jwt_secret";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -24,7 +27,7 @@ public class Program
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = "products-api",
                     ValidAudience = "products-api",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_jwt_key_1234567890_abcdefg"))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
                 };
             });
         builder.Services.AddAuthorization();
@@ -32,9 +35,11 @@ public class Program
         // CORS
         builder.Services.AddCors(options =>
         {
+            var allowedOrigins = (Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? "")
+                .Split(',');
             options.AddPolicy("AllowFrontend",
                 policy => policy
-                    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000")
+                    .WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials());
@@ -53,8 +58,9 @@ public class Program
         }
         else
         {
+            var connStr = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(connStr));
         }
         builder.Services.AddScoped<ProductsDotnetApi.Repositories.ProductRepository>();
         builder.Services.AddScoped<ProductsDotnetApi.Repositories.UserRepository>();

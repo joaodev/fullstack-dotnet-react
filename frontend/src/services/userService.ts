@@ -6,8 +6,8 @@ export interface User {
 }
 
 
-const API_URL = 'http://localhost:8080/api/usuarios';
-const API_TOTAL_URL = 'http://localhost:8080/api/usuarios/total';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/usuarios`;
+const API_TOTAL_URL = `${import.meta.env.VITE_API_URL}/api/usuarios/total`;
 
 export async function fetchUserById(id: string, token?: string): Promise<User> {
   const response = await fetch(`${API_URL}/${id}`, {

@@ -7,8 +7,8 @@ export interface Product {
 }
 
 
-const API_URL = 'http://localhost:8080/api/produtos';
-const API_TOTAL_URL = 'http://localhost:8080/api/produtos/total';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/produtos`;
+const API_TOTAL_URL = `${import.meta.env.VITE_API_URL}/api/produtos/total`;
 
 export async function fetchProductsTotal(token: string): Promise<number> {
   const response = await fetch(API_TOTAL_URL, {

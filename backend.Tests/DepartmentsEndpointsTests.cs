@@ -14,31 +14,30 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
 {
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> factory;
+    private readonly string _dbName;
 
     public DepartmentsEndpointsTests(WebApplicationFactory<Program> factory)
+    {
+        this.factory = factory;
+        _dbName = $"TestDb_{Guid.NewGuid()}";
+        var customFactory = factory.WithWebHostBuilder(builder =>
         {
-            this.factory = factory;
-            var customFactory = factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
             {
-                builder.ConfigureServices(services =>
+                var dbContextDescriptors = services.Where(d =>
+                    d.ServiceType == typeof(DbContextOptions<ProductsDotnetApi.Data.AppDbContext>) ||
+                    d.ServiceType == typeof(ProductsDotnetApi.Data.AppDbContext)).ToList();
+                foreach (var descriptor in dbContextDescriptors)
+                    services.Remove(descriptor);
+                services.AddDbContext<ProductsDotnetApi.Data.AppDbContext>(options =>
                 {
-                    // Remove todos os registros de AppDbContext e DbContextOptions
-                    var dbContextDescriptors = services.Where(d =>
-                        d.ServiceType == typeof(DbContextOptions<ProductsDotnetApi.Data.AppDbContext>) ||
-                        d.ServiceType == typeof(ProductsDotnetApi.Data.AppDbContext)).ToList();
-                    foreach (var descriptor in dbContextDescriptors)
-                        services.Remove(descriptor);
-
-                    // Adiciona o contexto InMemory
-                    services.AddDbContext<ProductsDotnetApi.Data.AppDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase("TestDb");
-                    });
+                    options.UseInMemoryDatabase(_dbName);
                 });
             });
-            _client = customFactory.CreateClient();
-            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GenerateJwtToken()}");
-        }
+        });
+        _client = customFactory.CreateClient();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GenerateJwtToken()}");
+    }
 
     [Fact]
     public async Task GetDepartments_ReturnsSuccess()
@@ -47,25 +46,29 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
         response.EnsureSuccessStatusCode();
     }
 
-        [Fact]
-        public async Task GetDepartmentsTotal_ReturnsSuccessAndCorrectCount()
-        {
+    [Fact]
+    public async Task GetDepartmentsTotal_ReturnsSuccessAndCorrectCount()
+    {
         // Limpa o banco antes do teste
         var db = GetDbContext();
         db.Departments.RemoveRange(db.Departments);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
+        // Aguarda para garantir que o banco está limpo
+        await Task.Delay(100);
         // Cria 2 departamentos ativos
-        var dep1 = new { name = "Departamento 1" };
-        var dep2 = new { name = "Departamento 2" };
+        var dep1 = new { name = $"Departamento_{Guid.NewGuid()}", status = true };
+        var dep2 = new { name = $"Departamento_{Guid.NewGuid()}", status = true };
         await _client.PostAsJsonAsync("/departamentos", dep1);
         await _client.PostAsJsonAsync("/departamentos", dep2);
-            var response = await _client.GetAsync("/departamentos/total");
-            response.EnsureSuccessStatusCode();
+        // Aguarda para garantir persistência dos dados
+        await Task.Delay(100);
+        var response = await _client.GetAsync("/departamentos/total");
+        response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         using var doc = System.Text.Json.JsonDocument.Parse(json);
         var total = doc.RootElement.GetProperty("total").GetInt32();
         Assert.Equal(2, total);
-        }
+    }
 
     [Fact]
     public async Task CreateDepartment_ReturnsCreated()
@@ -82,9 +85,6 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
         var response = await _client.PostAsJsonAsync("/departamentos", department);
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-
-    // PUT não é implementado para departamentos
 
     [Fact]
     public async Task DeleteDepartment_ReturnsNoContentOrNotFound()

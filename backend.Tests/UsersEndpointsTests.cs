@@ -19,27 +19,8 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 
     public UsersEndpointsTests(WebApplicationFactory<Program> factory)
     {
-    this.factory = factory;
-    var customFactory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Remove o contexto real
-                // Remove todos os registros de AppDbContext e DbContextOptions
-                var dbContextDescriptors = services.Where(d =>
-                    d.ServiceType == typeof(DbContextOptions<ProductsDotnetApi.Data.AppDbContext>) ||
-                    d.ServiceType == typeof(ProductsDotnetApi.Data.AppDbContext)).ToList();
-                foreach (var descriptor in dbContextDescriptors)
-                    services.Remove(descriptor);
-
-                // Adiciona o contexto InMemory
-                services.AddDbContext<ProductsDotnetApi.Data.AppDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("TestDb");
-                });
-            });
-        });
-        _client = customFactory.CreateClient();
+        this.factory = factory;
+        _client = factory.CreateClient();
         _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GenerateJwtToken()}");
     }
 
@@ -52,9 +33,9 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         response.EnsureSuccessStatusCode();
     }
 
-        [Fact]
-        public async Task GetUsersTotal_ReturnsSuccessAndCorrectCount()
-        {
+    [Fact]
+    public async Task GetUsersTotal_ReturnsSuccessAndCorrectCount()
+    {
         // Limpa o banco antes do teste
         var db = GetDbContext();
         db.Users.RemoveRange(db.Users);
@@ -66,13 +47,13 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var user2 = new { name = "Usuário 2", email = email2, password = "123456" };
         await _client.PostAsJsonAsync("/usuarios", user1);
         await _client.PostAsJsonAsync("/usuarios", user2);
-            var response = await _client.GetAsync("/usuarios/total");
-            response.EnsureSuccessStatusCode();
+        var response = await _client.GetAsync("/usuarios/total");
+        response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         using var doc = System.Text.Json.JsonDocument.Parse(json);
         var total = doc.RootElement.GetProperty("total").GetInt32();
         Assert.Equal(2, total);
-        }
+    }
 
     [Fact]
     public async Task CreateUser_Valid_ReturnsCreated()
@@ -119,10 +100,9 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var createResponse = await _client.PostAsJsonAsync("/usuarios", user);
         if (createResponse.StatusCode != System.Net.HttpStatusCode.Created) Assert.True(false, "Usuário não criado para update");
         var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
-
-    var update = new { Name = "Usuário Atualizado", Email = UniqueEmail("upd2"), PasswordHash = "654321", Status = true };
-    var response = await _client.PutAsJsonAsync($"/usuarios/{created.Id}", update);
-    Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        var update = new { Name = "Usuário Atualizado", Email = UniqueEmail("upd2"), PasswordHash = "654321", Status = true };
+        var response = await _client.PutAsJsonAsync($"/usuarios/{created.Id}", update);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -133,7 +113,6 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var createResponse = await _client.PostAsJsonAsync("/usuarios", user);
         if (createResponse.StatusCode != System.Net.HttpStatusCode.Created) Assert.True(false, "Usuário não criado para delete");
         var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
-
         var response = await _client.DeleteAsync($"/usuarios/{created.Id}");
         Assert.Contains(response.StatusCode, new[] { System.Net.HttpStatusCode.NoContent, System.Net.HttpStatusCode.NotFound });
     }

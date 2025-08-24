@@ -4,8 +4,8 @@ export interface Department {
 }
 
 
-const API_URL = 'http://localhost:8080/api/departamentos';
-const API_TOTAL_URL = 'http://localhost:8080/api/departamentos/total';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/departamentos`;
+const API_TOTAL_URL = `${import.meta.env.VITE_API_URL}/api/departamentos/total`;
 
 export async function fetchDepartmentsTotal(token: string): Promise<number> {
   const response = await fetch(API_TOTAL_URL, {

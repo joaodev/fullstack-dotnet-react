@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile.frontend
     depends_on:
       - backend
+    volumes:
+      - ./frontend/.env:/app/.env
   nginx:
     image: nginx:alpine
     ports:
@@ -42,6 +44,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+      - ./backend/.env:/app/.env
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 5000
