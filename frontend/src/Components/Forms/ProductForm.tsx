@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'react-bootstrap';
 import { ProductFormProps } from '../../Interfaces/ProductFormProps';
 
 const ProductForm: React.FC<ProductFormProps> = ({ code, description, price, departmentId, departments, error, onChange, onSubmit, onCancel }) => (
@@ -54,13 +55,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ code, description, price, dep
         ))}
       </select>
     </div>
-    <div className="modal-footer">
-      <button type="button" className="btn btn-light" onClick={onCancel}>
+    <div className="d-flex justify-content-end gap-2">
+      <Button variant="light" onClick={onCancel}>
         Cancelar
-      </button>
-      <button type="submit" className="btn btn-primary">
+      </Button>
+      <Button variant="success" type="submit">
         Salvar
-      </button>
+      </Button>
     </div>
   </form>
 );

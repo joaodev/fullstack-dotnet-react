@@ -76,8 +76,8 @@ namespace Backend.Migrations
                values: new object[] {
                     Guid.Parse("6d5b8cfa-4596-4bdb-a163-8f3606a6b46b"),
                     "Administrador",
-                    "admin@admin.com",
-                    "JAvlGPq9JyTdtvBO6x2llnRI1+gxwIyPqCKAn3THIKk=",
+                    "admin@local.com",
+                    "3NuIde5kfp4vlLlY1aToamE8a+j8BrxAFtDFoi7tXaQ=", // Admin#20205
                     true
                });
         }

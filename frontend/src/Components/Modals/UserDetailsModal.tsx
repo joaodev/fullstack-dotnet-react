@@ -51,19 +51,25 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         </div>
       )}
     </Modal.Body>
-    <Modal.Footer className="border-0 d-flex justify-content-end gap-2">
-      <Button variant="secondary" onClick={onHide} disabled={loading}>
-        Fechar
-      </Button>
-      {onEdit && (
-        <Button variant="success" onClick={onEdit} disabled={loading}>
-          Editar
-        </Button>
-      )}
-      {onDelete && (
-        <Button variant="danger" onClick={onDelete} disabled={deleting || loading}>
-          {deleting ? 'Excluindo...' : 'Excluir'}
-        </Button>
+    <Modal.Footer className="border-0 d-flex justify-content-end gap-2 bg-white">
+      {!deleting ? (
+        <>
+          <Button variant="secondary" onClick={onHide} disabled={loading}>
+            <i className="bi bi-x-circle me-1"></i> Fechar
+          </Button>
+          {onEdit && (
+            <Button variant="success" onClick={onEdit} disabled={loading}>
+              <i className="bi bi-pencil-square me-1"></i> Editar
+            </Button>
+          )}
+          {onDelete && (
+            <Button variant="danger" onClick={onDelete} disabled={loading}>
+              <i className="bi bi-trash me-1"></i>Excluir
+            </Button>
+          )}
+        </>
+      ) : (
+        <div className="w-100 text-center fw-bold fs-5 text-danger">Excluindo...</div>
       )}
     </Modal.Footer>
   </Modal>

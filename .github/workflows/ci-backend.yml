@@ -8,15 +8,6 @@ on:
 
 jobs:
   build-and-test:
-    services:
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-          - 15672:15672
-        env:
-          RABBITMQ_DEFAULT_USER: rabbitmq
-          RABBITMQ_DEFAULT_PASS: rabbitmq
     runs-on: ubuntu-latest
     steps:
       - name: Checkout código
@@ -29,8 +20,6 @@ jobs:
         run: dotnet restore backend.Tests/backend.Tests.csproj
       - name: Build
         run: dotnet build backend.Tests/backend.Tests.csproj --no-restore
-      - name: Esperar RabbitMQ subir
-        run: sleep 15
       - name: Testes automatizados (InMemory)
         run: |
           export JWT_SECRET=super_secret_jwt_key_1234567890_abcdefg
