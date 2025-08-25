@@ -99,6 +99,20 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 		setShowModal(true);
 		setEditMode(false);
 	};
+	const fetchProdutos = async () => {
+		setLoading(true);
+		const token = localStorage.getItem('token') || '';
+		try {
+			const response = await fetch('http://localhost:8080/api/produtos', {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			const data = await response.json();
+			setFilteredData(Array.isArray(data) ? data : []);
+		} catch {
+			setFilteredData([]);
+		}
+		setLoading(false);
+	};
 	const handleEditSave = async () => {
 		if (!selectedProduct) return;
 		setLoading(true);
@@ -111,16 +125,10 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 				price: parseFloat(price.replace(',', '.')),
 				departmentId,
 			});
-			setFilteredData((prev) =>
-				prev.map((prod) =>
-					prod.id === selectedProduct.id
-						? { ...prod, ...updated }
-						: prod
-				)
-			);
 			setFeedback({ type: 'success', message: 'Produto atualizado com sucesso!' });
 			setToastType('success');
 			setShowToast(true);
+			await fetchProdutos();
 			setLoading(false);
 			setTimeout(() => {
 				setShowModal(false);
@@ -190,8 +198,8 @@ const ProductsDataTable: React.FC<ProductsDataTableProps> = ({ data, departments
 		const token = localStorage.getItem('token') || '';
 		try {
 			await deleteProduct(token, selectedProduct.id);
-			setFilteredData((prev) => prev.filter((prod) => prod.id !== selectedProduct.id));
 			setFeedback({ type: 'success', message: 'Produto excluído com sucesso!' });
+			await fetchProdutos();
 			setLoading(false);
 			setTimeout(() => {
 				setShowModal(false);

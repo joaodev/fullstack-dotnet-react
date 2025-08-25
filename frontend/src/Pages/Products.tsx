@@ -21,7 +21,7 @@ const Products: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 
-	useEffect(() => {
+	const fetchProdutos = () => {
 		const token = localStorage.getItem('token');
 		fetch('http://localhost:8080/api/produtos', {
 			headers: { Authorization: `Bearer ${token}` },
@@ -42,6 +42,9 @@ const Products: React.FC = () => {
 					console.log('Produtos recebidos:', data);
 				}
 			});
+	};
+	useEffect(() => {
+		fetchProdutos();
 	}, [navigate]);
 
 	useEffect(() => {
@@ -87,6 +90,10 @@ const Products: React.FC = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setAlert(null);
+		if (!form.departmentId) {
+			setError('Selecione um departamento antes de salvar o produto.');
+			return;
+		}
 		const token = localStorage.getItem('token');
 		try {
 			let priceValue = form.price.replace(/\./g, '');
@@ -118,10 +125,10 @@ const Products: React.FC = () => {
 				setAlert({ type: 'danger', message: errorMsg });
 				return;
 			}
-					setAlert({ type: 'success', message: 'Produto cadastrado com sucesso!' });
-					setShowToast(true);
-					setProdutos((prev) => [...prev, result]);
-					setShowModal(false); // Fechar modal, não resetar form aqui
+				setAlert({ type: 'success', message: 'Produto cadastrado com sucesso!' });
+				setShowToast(true);
+				fetchProdutos();
+				setShowModal(false); // Fechar modal, não resetar form aqui
 		} catch (err: any) {
 			const msg = typeof err === 'string' ? err : err?.message || 'Erro desconhecido';
 			setAlert({ type: 'danger', message: msg });

@@ -20,6 +20,30 @@ function Departments() {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	};
+	const fetchDepartamentos = () => {
+		const token = localStorage.getItem('token');
+		setLoadingDepartamentos(true);
+		fetch('http://localhost:8080/api/departamentos', {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+			.then((res) => {
+				if (res.status === 401) {
+					localStorage.removeItem('token');
+					navigate('/');
+					return null;
+				}
+				return res.json();
+			})
+			.then((data) => {
+				if (data?.error) {
+					setError(data.error);
+				} else if (data) {
+					setDepartamentos(data);
+				}
+			})
+			.finally(() => setLoadingDepartamentos(false));
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setAlert(null);
@@ -47,8 +71,7 @@ function Departments() {
 			setShowToast(true);
 			setShowModal(false);
 			setForm({ name: '' });
-			// Atualiza lista sem reload
-			setDepartamentos((prev) => [...prev, result]);
+			fetchDepartamentos();
 		} catch (err: any) {
 			const msg = typeof err === 'string' ? err : err?.message || 'Erro desconhecido';
 			setAlert({ type: 'danger', message: msg });

@@ -18,23 +18,24 @@ namespace Backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.Id);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Eletrônicos" },
-                    { 2, "Roupas" },
-                    { 3, "Alimentos" },
-                    { 4, "Móveis" }
-                });
+                migrationBuilder.InsertData(
+                    table: "Departments",
+                    columns: new[] { "Id", "Name", "Status" },
+                    values: new object[,]
+                    {
+                        { 1, "Eletrônicos", true },
+                        { 2, "Roupas", true },
+                        { 3, "Alimentos", true },
+                        { 4, "Móveis", true }
+                    });
 
             migrationBuilder.CreateTable(
                 name: "Products",
@@ -59,7 +60,8 @@ namespace Backend.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    PasswordHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                    PasswordHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Status = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Card, Button, Form } from 'react-bootstrap';
-import { fetchDepartments } from '../services/departmentService';
 import { updateUser } from '../services/userService';
 import { getUserFromToken } from '../services/authUtils';
 

@@ -18,6 +18,28 @@ function Users() {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	};
+	const fetchUsuarios = () => {
+		const token = localStorage.getItem('token');
+		fetch('http://localhost:8080/api/usuarios', {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+			.then((res) => {
+				if (res.status === 401) {
+					localStorage.removeItem('token');
+					navigate('/');
+					return null;
+				}
+				return res.json();
+			})
+			.then((data) => {
+				if (data?.error) {
+					setError(data.error);
+				} else if (data) {
+					setUsuarios(data);
+				}
+			});
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setAlert(null);
@@ -45,9 +67,9 @@ function Users() {
 				return;
 			}
 			setAlert({ type: 'success', message: 'Usuário cadastrado com sucesso!' });
+			fetchUsuarios();
 			setTimeout(() => {
 				handleCloseModal();
-				window.location.reload();
 			}, 1200);
 		} catch (err: any) {
 			const msg = typeof err === 'string' ? err : err?.message || 'Erro desconhecido';
