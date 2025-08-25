@@ -99,9 +99,11 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var user = new { name = "Usuário Atualizar", email, password = "123456" };
         var createResponse = await _client.PostAsJsonAsync("/usuarios", user);
         if (createResponse.StatusCode != System.Net.HttpStatusCode.Created) Assert.True(false, "Usuário não criado para update");
-        var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
+        UserResponse created = null;
+        if (createResponse.StatusCode == System.Net.HttpStatusCode.Created)
+            created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
         var update = new { Name = "Usuário Atualizado", Email = UniqueEmail("upd2"), PasswordHash = "654321", Status = true };
-        var response = await _client.PutAsJsonAsync($"/usuarios/{created.Id}", update);
+        var response = await _client.PutAsJsonAsync($"/usuarios/{created?.Id}", update);
         Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
@@ -112,8 +114,10 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
         var user = new { name = "Usuário Deletar", email, password = "123456" };
         var createResponse = await _client.PostAsJsonAsync("/usuarios", user);
         if (createResponse.StatusCode != System.Net.HttpStatusCode.Created) Assert.True(false, "Usuário não criado para delete");
-        var created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
-        var response = await _client.DeleteAsync($"/usuarios/{created.Id}");
+        UserResponse created = null;
+        if (createResponse.StatusCode == System.Net.HttpStatusCode.Created)
+            created = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
+        var response = await _client.DeleteAsync($"/usuarios/{created?.Id}");
         Assert.Contains(response.StatusCode, new[] { System.Net.HttpStatusCode.NoContent, System.Net.HttpStatusCode.NotFound });
     }
 

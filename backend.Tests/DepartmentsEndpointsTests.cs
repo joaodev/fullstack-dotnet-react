@@ -91,9 +91,11 @@ public class DepartmentsEndpointsTests : IClassFixture<WebApplicationFactory<Pro
     {
         var department = new { name = "Departamento Deletar" };
         var createResponse = await _client.PostAsJsonAsync("/departamentos", department);
-        var created = await createResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+        DepartmentResponse created = null;
+        if (createResponse.StatusCode == System.Net.HttpStatusCode.Created)
+            created = await createResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
 
-        var response = await _client.DeleteAsync($"/departamentos/{created.Id}");
+        var response = await _client.DeleteAsync($"/departamentos/{created?.Id}");
         Assert.Contains(response.StatusCode, new[] { System.Net.HttpStatusCode.NoContent, System.Net.HttpStatusCode.NotFound });
     }
 

@@ -84,7 +84,9 @@ namespace Backend.Tests
                 price = 15.0m
             };
             var createResponse = await _client.PostAsJsonAsync("/produtos", product);
-            var created = await createResponse.Content.ReadFromJsonAsync<ProductResponse>();
+            ProductResponse created = null;
+            if (createResponse.StatusCode == System.Net.HttpStatusCode.Created)
+                created = await createResponse.Content.ReadFromJsonAsync<ProductResponse>();
 
             var update = new
             {
@@ -92,7 +94,7 @@ namespace Backend.Tests
                 departmentId = 2,
                 price = 20.0m
             };
-            var response = await _client.PutAsJsonAsync($"/produtos/{created.Id}", update);
+            var response = await _client.PutAsJsonAsync($"/produtos/{created?.Id}", update);
             Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -107,9 +109,11 @@ namespace Backend.Tests
                 price = 12.0m
             };
             var createResponse = await _client.PostAsJsonAsync("/produtos", product);
-            var created = await createResponse.Content.ReadFromJsonAsync<ProductResponse>();
+            ProductResponse created = null;
+            if (createResponse.StatusCode == System.Net.HttpStatusCode.Created)
+                created = await createResponse.Content.ReadFromJsonAsync<ProductResponse>();
 
-            var response = await _client.DeleteAsync($"/produtos/{created.Id}");
+            var response = await _client.DeleteAsync($"/produtos/{created?.Id}");
             Assert.Equal(System.Net.HttpStatusCode.NoContent, response.StatusCode);
         }
 

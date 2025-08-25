@@ -21,7 +21,9 @@ jobs:
       - name: Build
         run: dotnet build backend.Tests/backend.Tests.csproj --no-restore
       - name: Testes automatizados (InMemory)
-        run: ASPNETCORE_ENVIRONMENT=Test dotnet test backend.Tests/backend.Tests.csproj --logger:"trx;LogFileName=test_results.trx"
+        run: |
+          export JWT_SECRET=super_secret_jwt_key_1234567890_abcdefg
+          ASPNETCORE_ENVIRONMENT=Test dotnet test backend.Tests/backend.Tests.csproj --logger:"trx;LogFileName=test_results.trx"
       - name: Publicar resultados dos testes
         if: always()
         uses: actions/upload-artifact@v4
