@@ -22,7 +22,7 @@ namespace Backend.Tests
             // Publica uma mensagem na fila antes de consumir
             var factory = new RabbitMQ.Client.ConnectionFactory()
             {
-                HostName = "localhost",
+                HostName = "rabbitmq",
                 UserName = "rabbitmq",
                 Password = "rabbitmq"
             };
