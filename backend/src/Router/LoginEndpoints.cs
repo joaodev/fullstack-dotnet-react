@@ -8,24 +8,31 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using ProductsDotnetApi.Repositories;
 
-public class LoginLog {}
+public class LoginLog { }
 public static class LoginEndpoints
 {
+    /// <summary>
+    /// Mapeia o endpoint de autenticação de usuário (login).
+    /// </summary>
+    /// <param name="app">Instância do WebApplication</param>
     public static void MapLoginEndpoints(this WebApplication app)
     {
         app.MapPost("/login", async ([FromServices] UserRepository userRepository, LoginRequest login) =>
         {
             var logger = app.Services.GetRequiredService<ILogger<LoginLog>>();
             var user = await userRepository.GetByEmailAsync(login.Email);
-            if (user == null) {
+            if (user == null)
+            {
                 logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Usuário não encontrado", DateTime.UtcNow, login.Email);
                 return Results.Unauthorized();
             }
-            if (!user.Status) {
+            if (!user.Status)
+            {
                 logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Usuário inativo", DateTime.UtcNow, login.Email);
                 return Results.Unauthorized();
             }
-            if (!ProductsDotnetApi.Repositories.PasswordHelper.VerifyPassword(login.Password, user.PasswordHash)) {
+            if (!ProductsDotnetApi.Repositories.PasswordHelper.VerifyPassword(login.Password, user.PasswordHash))
+            {
                 logger.LogWarning("[ERRO] [{Time}] [POST /login] [Email: {Email}] - Senha inválida", DateTime.UtcNow, login.Email);
                 return Results.Unauthorized();
             }

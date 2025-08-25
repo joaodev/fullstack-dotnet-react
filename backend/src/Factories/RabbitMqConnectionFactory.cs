@@ -2,6 +2,9 @@ using RabbitMQ.Client;
 
 namespace ProductsDotnetApi.Factories
 {
+    /// <summary>
+    /// Factory para criar conexões com RabbitMQ.
+    /// </summary>
     public static class RabbitMqConnectionFactory
     {
         public static IConnection CreateConnection()

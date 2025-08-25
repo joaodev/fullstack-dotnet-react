@@ -10,13 +10,15 @@ using Backend.Interfaces;
 
 namespace ProductsDotnetApi.Repositories
 {
+    /// <summary>
+    /// Métodos auxiliares para hash e verificação de senha.
+    /// </summary>
     public static class PasswordHelper
     {
         public static string HashPassword(string password)
         {
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
             var bytes = System.Text.Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
+            var hash = System.Security.Cryptography.SHA256.HashData(bytes);
             return Convert.ToBase64String(hash);
         }
 
@@ -26,24 +28,22 @@ namespace ProductsDotnetApi.Repositories
         }
     }
 
-    public class UserRepository
+    /// <summary>
+    /// Repositório para operações de acesso e manipulação de usuários.
+    /// </summary>
+    public class UserRepository(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-
-        public UserRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
         }
 
-            public async Task<int> TotalAsync()
-            {
-                return await _context.Users.CountAsync(u => u.Status);
-            }
+        public async Task<int> TotalAsync()
+        {
+            return await _context.Users.CountAsync(u => u.Status);
+        }
 
         public async Task<User?> GetByIdAsync(Guid id)
         {

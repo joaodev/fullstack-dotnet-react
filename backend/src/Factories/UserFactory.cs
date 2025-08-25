@@ -2,6 +2,9 @@ namespace Backend.Factories
 {
     using ProductsDotnetApi.Models;
     using Backend.Interfaces;
+    /// <summary>
+    /// Factory para instanciar objetos User.
+    /// </summary>
     public class UserFactory : IUserFactory
     {
         public User Create(string name, string email, string passwordHash)

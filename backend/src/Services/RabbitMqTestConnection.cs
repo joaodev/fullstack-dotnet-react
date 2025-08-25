@@ -3,9 +3,15 @@ using System;
 
 namespace ProductsDotnetApi.Services
 {
+    /// <summary>
+    /// Serviço para testar conexão com RabbitMQ.
+    /// </summary>
     public class RabbitMqTestConnection
     {
-        public static void Test()
+    /// <summary>
+    /// Testa a conexão e criação de canal RabbitMQ usando variáveis de ambiente.
+    /// </summary>
+    public static void Test()
         {
             var factory = new ConnectionFactory()
             {

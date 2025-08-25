@@ -6,9 +6,17 @@ using System.Collections.Generic;
 
 namespace ProductsDotnetApi.Services
 {
+    /// <summary>
+    /// Serviço para consumir mensagens de uma fila RabbitMQ.
+    /// </summary>
     public class RabbitMqConsumerService
     {
-        public List<string> ReadMessages(int maxMessages = 10)
+    /// <summary>
+    /// Lê até <paramref name="maxMessages"/> mensagens da fila RabbitMQ definida em RABBITMQ_QUEUE.
+    /// </summary>
+    /// <param name="maxMessages">Número máximo de mensagens a ler</param>
+    /// <returns>Lista de mensagens lidas</returns>
+    public List<string> ReadMessages(int maxMessages = 10)
         {
             var queueName = Environment.GetEnvironmentVariable("RABBITMQ_QUEUE") ?? "test-queue";
             var messages = new List<string>();

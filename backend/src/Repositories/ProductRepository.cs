@@ -10,24 +10,22 @@ using Backend.Interfaces;
 
 namespace ProductsDotnetApi.Repositories
 {
-    public class ProductRepository
+    /// <summary>
+    /// Repositório para operações de acesso e manipulação de produtos.
+    /// </summary>
+    public class ProductRepository(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-
-        public ProductRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _context.Products.Where(p => p.Status).ToListAsync();
         }
 
-            public async Task<int> TotalAsync()
-            {
-                return await _context.Products.CountAsync(p => p.Status);
-            }
+        public async Task<int> TotalAsync()
+        {
+            return await _context.Products.CountAsync(p => p.Status);
+        }
 
         public async Task<Product?> GetByIdAsync(Guid id)
         {

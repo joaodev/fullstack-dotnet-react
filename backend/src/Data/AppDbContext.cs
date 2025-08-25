@@ -10,10 +10,10 @@ namespace ProductsDotnetApi.Data
         // Construtor padrão para uso em migrations
         public AppDbContext() { }
 
-    // O provider de banco de dados será configurado via DI (Dependency Injection)
+        // O provider de banco de dados será configurado via DI (Dependency Injection)
 
-    public DbSet<Product> Products { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Department> Departments { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Department> Departments { get; set; }
     }
 }

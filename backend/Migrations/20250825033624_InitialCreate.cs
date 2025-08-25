@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -9,6 +9,8 @@ namespace Backend.Migrations
     /// <inheritdoc />
     public partial class InitialCreate : Migration
     {
+        private static readonly string[] columns = new[] { "Id", "Name", "Status" };
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -26,16 +28,16 @@ namespace Backend.Migrations
                     table.PrimaryKey("PK_Departments", x => x.Id);
                 });
 
-                migrationBuilder.InsertData(
-                    table: "Departments",
-                    columns: new[] { "Id", "Name", "Status" },
-                    values: new object[,]
-                    {
+            migrationBuilder.InsertData(
+                table: "Departments",
+                columns: columns,
+                values: new object[,]
+                {
                         { 1, "Eletrônicos", true },
                         { 2, "Roupas", true },
                         { 3, "Alimentos", true },
                         { 4, "Móveis", true }
-                    });
+                });
 
             migrationBuilder.CreateTable(
                 name: "Products",

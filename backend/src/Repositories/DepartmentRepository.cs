@@ -10,14 +10,12 @@ using Backend.Interfaces;
 
 namespace ProductsDotnetApi.Repositories
 {
-    public class DepartmentRepository
+    /// <summary>
+    /// Repositório para operações de acesso e manipulação de departamentos.
+    /// </summary>
+    public class DepartmentRepository(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-
-        public DepartmentRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task UpdateNameAsync(int id, string name)
         {
@@ -35,10 +33,10 @@ namespace ProductsDotnetApi.Repositories
             return await _context.Departments.ToListAsync();
         }
 
-            public async Task<int> TotalAsync()
-            {
-                return await _context.Departments.CountAsync(d => d.Status);
-            }
+        public async Task<int> TotalAsync()
+        {
+            return await _context.Departments.CountAsync(d => d.Status);
+        }
 
         private readonly IDepartmentFactory _departmentFactory = new DepartmentFactory();
 

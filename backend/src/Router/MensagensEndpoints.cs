@@ -6,6 +6,10 @@ namespace ProductsDotnetApi.Router
 {
     public static class MensagensEndpoints
     {
+        /// <summary>
+        /// Mapeia o endpoint para leitura de mensagens do RabbitMQ.
+        /// </summary>
+        /// <param name="app">Instância do WebApplication</param>
         public static void MapMensagensEndpoints(this WebApplication app)
         {
             app.MapGet("/mensagens/rabbitmq", async (HttpContext context) =>
@@ -14,7 +18,8 @@ namespace ProductsDotnetApi.Router
                 {
                     var consumer = new RabbitMqConsumerService();
                     var messages = await Task.Run(() => consumer.ReadMessages(10));
-                    return Results.Ok(new {
+                    return Results.Ok(new
+                    {
                         success = true,
                         count = messages.Count,
                         messages

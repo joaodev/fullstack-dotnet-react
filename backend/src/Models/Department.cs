@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductsDotnetApi.Models
 {
+    /// <summary>
+    /// Entidade que representa um departamento.
+    /// </summary>
     [Table("Departments")]
     public class Department
     {

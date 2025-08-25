@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductsDotnetApi.Models
 {
+    /// <summary>
+    /// Entidade que representa um usuário do sistema.
+    /// </summary>
     [Table("Users")]
     public class User
     {

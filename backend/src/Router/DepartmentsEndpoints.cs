@@ -4,15 +4,21 @@ using ProductsDotnetApi.Repositories;
 
 namespace ProductsDotnetApi.Router
 {
-    public class DepartmentLog {}
+    public class DepartmentLog { }
 
-    public class DepartmentResponse {
+    public class DepartmentResponse
+    {
         public int Id { get; set; }
         public string? Name { get; set; }
     }
 
     public static class DepartmentsEndpoints
     {
+        /// <summary>
+        /// Mapeia os endpoints REST para departamentos: listar, total, criar, atualizar e deletar.
+        /// </summary>
+        /// <param name="app">Instância do WebApplication</param>
+        /// <returns>RouteGroupBuilder configurado</returns>
         public static RouteGroupBuilder MapDepartmentsEndpoints(this WebApplication app)
         {
             var router = app.MapGroup("/departamentos").RequireAuthorization();
@@ -21,7 +27,8 @@ namespace ProductsDotnetApi.Router
                 var departments = await repository.GetAllAsync();
                 var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
                 var ativos = departments.Where(d => d.Status)
-                    .Select(d => new DepartmentResponse {
+                    .Select(d => new DepartmentResponse
+                    {
                         Id = d.Id,
                         Name = d.Name
                     }).ToList();
@@ -29,14 +36,14 @@ namespace ProductsDotnetApi.Router
                 return Results.Json(ativos);
             });
 
-                // GET /departamentos/total
-                router.MapGet("/total", async ([FromServices] DepartmentRepository repository) =>
-                {
-                    var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
-                    var total = await repository.TotalAsync();
-                    logger.LogInformation("[SUCESSO] [{Time}] [GET /departamentos/total] - Total de departamentos ativos: {Total}", DateTime.UtcNow, total);
-                    return Results.Json(new { total });
-                });
+            // GET /departamentos/total
+            router.MapGet("/total", async ([FromServices] DepartmentRepository repository) =>
+            {
+                var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
+                var total = await repository.TotalAsync();
+                logger.LogInformation("[SUCESSO] [{Time}] [GET /departamentos/total] - Total de departamentos ativos: {Total}", DateTime.UtcNow, total);
+                return Results.Json(new { total });
+            });
             router.MapPut("/{id}", async ([FromServices] DepartmentRepository repository, int id, [FromBody] DepartmentInput input) =>
             {
                 var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
@@ -84,7 +91,8 @@ namespace ProductsDotnetApi.Router
                 // Removido: var created = Results.Created($"/departamentos/{department?.Id}", department);
                 if (department == null)
                     return Results.Json(new { error = "Erro ao buscar departamento criado." }, statusCode: 500);
-                var response = new DepartmentResponse {
+                var response = new DepartmentResponse
+                {
                     Id = department.Id,
                     Name = department.Name
                 };
@@ -96,7 +104,8 @@ namespace ProductsDotnetApi.Router
             {
                 var department = await repository.GetByIdAsync(id);
                 var logger = app.Services.GetRequiredService<ILogger<DepartmentLog>>();
-                if (department is null || !department.Status) {
+                if (department is null || !department.Status)
+                {
                     logger.LogWarning("[ERRO] [{Time}] [DELETE /departamentos/{Id}] - Departamento não encontrado ou inativo: {DepartmentId}", DateTime.UtcNow, id, id);
                     return Results.Json(new { error = "Departamento não encontrado ou inativo" }, statusCode: 404);
                 }
@@ -109,7 +118,8 @@ namespace ProductsDotnetApi.Router
     }
 
     // Classe auxiliar para input
-    public class DepartmentInput {
+    public class DepartmentInput
+    {
         public string? Name { get; set; }
     }
 }

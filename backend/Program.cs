@@ -12,8 +12,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
-    // Carrega variáveis do .env sempre, inclusive em ambiente de teste
-    DotNetEnv.Env.Load();
+        // Carrega variáveis do .env sempre, inclusive em ambiente de teste
+        DotNetEnv.Env.Load();
 
         var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +49,15 @@ public class Program
 
         // Swagger/OpenAPI
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = "API Backend Fullstack .NET/React",
+                Version = "v1",
+                Description = "Documentação OpenAPI dos endpoints REST do backend."
+            });
+        });
 
         // EF Core para PostgreSQL (somente se não estiver em ambiente de teste)
         var isTestEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Test";
@@ -74,7 +82,11 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Backend v1");
+                c.RoutePrefix = string.Empty;
+            });
         }
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions

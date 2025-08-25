@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductsDotnetApi.Models
 {
+    /// <summary>
+    /// Entidade que representa um produto.
+    /// </summary>
     [Table("Products")]
     public class Product
     {

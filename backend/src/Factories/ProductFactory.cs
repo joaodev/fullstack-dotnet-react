@@ -2,6 +2,9 @@ namespace Backend.Factories
 {
     using ProductsDotnetApi.Models;
     using Backend.Interfaces;
+    /// <summary>
+    /// Factory para instanciar objetos Product.
+    /// </summary>
     public class ProductFactory : IProductFactory
     {
         public Product Create(string code, string description, int departmentId, decimal price, bool status)
