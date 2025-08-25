@@ -23,8 +23,8 @@ namespace Backend.Tests
             var factory = new RabbitMQ.Client.ConnectionFactory()
             {
                 HostName = "localhost",
-                UserName = "user",
-                Password = "password"
+                UserName = "rabbitmq",
+                Password = "rabbitmq"
             };
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
