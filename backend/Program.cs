@@ -6,13 +6,15 @@ using ProductsDotnetApi.Models;
 using ProductsDotnetApi.Data;
 using ProductsDotnetApi.Router;
 using Microsoft.AspNetCore.HttpOverrides;
+using RabbitMQ.Client;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        // Carrega variáveis do .env
-        DotNetEnv.Env.Load();
+    // Carrega variáveis do .env sempre, inclusive em ambiente de teste
+    DotNetEnv.Env.Load();
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -88,6 +90,7 @@ public class Program
         app.MapProductsEndpoints();
         app.MapDepartmentsEndpoints();
         app.MapUsersEndpoints();
+        app.MapMensagensEndpoints();
 
         app.UseAuthorization();
 

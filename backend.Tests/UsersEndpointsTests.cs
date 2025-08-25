@@ -130,15 +130,18 @@ public class UsersEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var securityKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("super_secret_jwt_key_1234567890_abcdefg"));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var header = new JwtHeader(credentials);
-        var payload = new JwtPayload(
+        var claims = new[] {
+            new System.Security.Claims.Claim("sub", "test-user"),
+            new System.Security.Claims.Claim("role", "admin")
+        };
+        var token = new JwtSecurityToken(
             issuer: "products-api",
             audience: "products-api",
-            claims: null,
+            claims: claims,
             notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddMinutes(30)
+            expires: DateTime.UtcNow.AddMinutes(30),
+            signingCredentials: credentials
         );
-        var token = new JwtSecurityToken(header, payload);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
